@@ -1,0 +1,29 @@
+{
+  "name": "creavo/multi-app-bundle",
+  "description": "A bundle to manage options",
+  "type": "symfony-bundle",
+  "authors": [
+    {
+      "name": "Christoph Keßeler",
+      "email": "ck@creavo.de"
+    }
+  ],
+  "keywords": [
+    "tasks notify symfony bundle"
+  ],
+  "license": [
+    "MIT"
+  ],
+  "require": {
+    "php": ">5.5.9",
+    "doctrine/doctrine-bundle": "^1.6",
+    "symfony/framework-bundle": "^3.2",
+    "webmozart/assert": "^1.2",
+    "lexik/form-filter-bundle": "^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Creavo\\MultiAppBundle\\": ""
+    }
+  }
+}

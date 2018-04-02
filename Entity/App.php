@@ -1,0 +1,105 @@
+<?php
+
+namespace Creavo\MultiAppBundle\Entity;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * App
+ *
+ * @ORM\Table(name="crv_ma_apps")
+ * @ORM\Entity(repositoryClass="Creavo\MultiAppBundle\Repository\AppRepository")
+ */
+class App
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255)
+     */
+    private $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="slug", type="string", length=255, unique=true)
+     */
+    private $slug;
+
+    /**
+     * @var Item[]
+     *
+     * @ORM\OneToMany(targetEntity="Item", mappedBy="app")
+     */
+    private $items;
+
+    /**
+     * @var Workspace
+     *
+     * @ORM\ManyToOne(targetEntity="Workspace", inversedBy="apps")
+     */
+    private $workspace;
+
+
+    public function __construct(){
+        $this->items=new ArrayCollection();
+    }
+
+    public function __toString() {
+        return $this->getName();
+    }
+
+    public function getId(){
+        return $this->id;
+    }
+
+    public function setName($name){
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getName(){
+        return $this->name;
+    }
+
+    public function setSlug($slug){
+        $this->slug = $slug;
+        return $this;
+    }
+
+    public function getSlug(){
+        return $this->slug;
+    }
+
+    public function addItem(\Creavo\MultiAppBundle\Entity\Item $item){
+        $this->items[] = $item;
+        return $this;
+    }
+
+    public function removeItem(\Creavo\MultiAppBundle\Entity\Item $item){
+        return $this->items->removeElement($item);
+    }
+
+    public function getItems(){
+        return $this->items;
+    }
+
+    public function setWorkspace(\Creavo\MultiAppBundle\Entity\Workspace $workspace = null){
+        $this->workspace = $workspace;
+        return $this;
+    }
+
+    public function getWorkspace(){
+        return $this->workspace;
+    }
+}
