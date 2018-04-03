@@ -104,7 +104,7 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository {
         $em->persist($item);
         $em->flush();
 
-        $this->deleteOldRevisions($item,10);
+        $this->deleteOldRevisions($item,100);
 
         return $item;
     }
@@ -134,7 +134,7 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository {
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    protected function deleteOldRevisions(Item $item, $keepRevision=50) {
+    protected function deleteOldRevisions(Item $item, $keepRevision=100) {
 
         $ids=[];
 

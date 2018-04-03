@@ -20,17 +20,12 @@
                         <th>{{ appField.name }}</th>
                     {% endif %}
                 {% endfor %}
-                <th>&nbsp;</th>
             </tr>
             </thead>
             <tbody>
             {% for row in pagination %}
-                <tr>
-                    <td>
-                        <a href="{{ path('crv_ma_item_detail', {'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': row.item.itemId}) }}">
-                            {{ row.item.itemId }}
-                        </a>
-                    </td>
+                <tr class="link" data-href="{{ path('crv_ma_item_detail', {'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': row.item.itemId}) }}">
+                    <td>{{ row.item.itemId }}</td>
                     {% for appField in row.fields %}
                         {% if appField.showListing %}
                             <td class="{{ appField.tableClass }}">
@@ -38,9 +33,6 @@
                             </td>
                         {% endif %}
                     {% endfor %}
-                    <td class="text-right">
-
-                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -50,8 +42,6 @@
             Es wurden keine {{ appEntity.itemSingularName }} gefunden.
         </div>
     {% endif %}
-
-    {{ dump(appFields) }}
 
     {{ knp_pagination_render(pagination) }}
 

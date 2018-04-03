@@ -11,7 +11,10 @@
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
     <p class="text-right">
-        Zuletzt geändert {{ item.createdAt|date('d.m.Y, H:i') }} Uhr
+        Zuletzt bearbeitet am {{ item.createdAt|date('d.m.Y, H:i') }} Uhr
+        {% if item.createdBy %}
+            von {{ item.createdBy }}
+        {% endif %}
     </p>
 
     <div class="row">

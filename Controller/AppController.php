@@ -93,4 +93,26 @@ class AppController extends Controller {
         ]);
     }
 
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/{itemId}/edit", name="crv_ma_item_edit")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param $itemId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function itemEditAction(Workspace $workspace, App $app, $itemId, Request $request) {
+
+        $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getCurrentRevisionItem($app,$itemId);
+
+        return $this->render('@CreavoMultiApp/item/edit.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+            'appFields'=>$this->getDoctrine()->getRepository('CreavoMultiAppBundle:App')->getItemRow($app,$item),
+            'item'=>$item,
+        ]);
+    }
+
 }
