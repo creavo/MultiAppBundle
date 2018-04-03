@@ -51,7 +51,11 @@ class App
     private $workspace;
 
 
-    public function __construct(){
+    public function __construct($name,$slug){
+
+        $this->setName($name);
+        $this->setSlug($slug);
+
         $this->items=new ArrayCollection();
     }
 
