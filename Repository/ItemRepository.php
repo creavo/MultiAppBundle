@@ -104,6 +104,8 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository {
         $em->persist($item);
         $em->flush();
 
+        $this->deleteOldRevisions($item,10);
+
         return $item;
     }
 
@@ -130,6 +132,41 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository {
             ->setMaxResults(1);
 
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    protected function deleteOldRevisions(Item $item, $keepRevision=50) {
+
+        $ids=[];
+
+        /** @var QueryBuilder $qb */
+        $qb=$this->createQueryBuilder('i');
+
+        $qb
+            ->select('i.id')
+            ->andWhere('i.app = :app')
+            ->setParameter('app',$item->getApp())
+            ->andWhere('i.itemId = :itemId')
+            ->setParameter('itemId',$item->getItemId())
+            ->andWhere('i.currentRevision = FALSE')
+            ->addOrderBy('i.revision','desc')
+            ->setFirstResult($keepRevision)
+            ->setMaxResults(100);
+
+        foreach($qb->getQuery()->getResult() AS $row) {
+            $ids[]=$row['id'];
+        }
+
+        if(count($ids)>0) {
+            /** @var QueryBuilder $qb */
+            $qb=$this->_em->createQueryBuilder();
+
+            $qb
+                ->delete('CreavoMultiAppBundle:Item','i')
+                ->andWhere('i.id IN (:ids)')
+                ->setParameter('ids',$ids);
+
+            $qb->getQuery()->execute();
+        }
     }
 
     protected function setCurrentRevisionToFalse(Item $item) {

@@ -1,0 +1,42 @@
+{% extends '@CreavoMultiApp/base.html.twig' %}
+
+{% block crv_ma_header %}
+    <div class="page-header">
+        <h1>Apps in {{ workspace.name }}</h1>
+    </div>
+{% endblock %}
+
+{% block crv_ma_body %}
+
+    {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
+
+    {% if pagination|length>0 %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for appEntity in pagination %}
+                <tr>
+                    <td>{{ appEntity.id }}</td>
+                    <td>
+                        <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
+                            {{ appEntity.name }}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Es wurden keine Apps gefunden.
+        </div>
+    {% endif %}
+
+    {{ knp_pagination_render(pagination) }}
+
+{% endblock %}

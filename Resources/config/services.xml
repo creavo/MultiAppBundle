@@ -4,13 +4,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <!--
     <services>
-        <service id="creavo_multi_app.example" class="Creavo\MultiAppBundle\Example">
-            <argument type="service" id="service_id" />
-            <argument>plain_value</argument>
-            <argument>%parameter_name%</argument>
+        <service id="creavo_multi_app.helper.format_helper" class="Creavo\MultiAppBundle\Helper\FormatHelper">
+        </service>
+
+        <service id="creavo_multi_app.twig.multi_app_extension" class="Creavo\MultiAppBundle\Twig\MultiAppExtension">
+            <tag name="twig.extension" />
+            <argument type="service" id="creavo_multi_app.helper.format_helper" />
         </service>
     </services>
-    -->
 </container>

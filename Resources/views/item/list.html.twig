@@ -1,0 +1,58 @@
+{% extends '@CreavoMultiApp/base.html.twig' %}
+
+{% block crv_ma_header %}
+    <div class="page-header">
+        <h1>{{ appEntity.itemPluralName }} in {{ appEntity.name }}</h1>
+    </div>
+{% endblock %}
+
+{% block crv_ma_body %}
+
+    {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
+
+    {% if pagination|length>0 %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                {% for appField in appFields %}
+                    {% if appField.showListing %}
+                        <th>{{ appField.name }}</th>
+                    {% endif %}
+                {% endfor %}
+                <th>&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in pagination %}
+                <tr>
+                    <td>
+                        <a href="{{ path('crv_ma_item_detail', {'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': row.item.itemId}) }}">
+                            {{ row.item.itemId }}
+                        </a>
+                    </td>
+                    {% for appField in row.fields %}
+                        {% if appField.showListing %}
+                            <td class="{{ appField.tableClass }}">
+                                {{ appField|crv_ma_format('-') }}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                    <td class="text-right">
+
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            Es wurden keine {{ appEntity.itemSingularName }} gefunden.
+        </div>
+    {% endif %}
+
+    {{ dump(appFields) }}
+
+    {{ knp_pagination_render(pagination) }}
+
+{% endblock %}

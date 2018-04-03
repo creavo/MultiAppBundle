@@ -37,6 +37,27 @@ class App
     private $slug;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="item_singular_name", type="string", length=64)
+     */
+    private $itemSingularName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="item_plural_name", type="string", length=64)
+     */
+    private $itemPluralName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="fields", type="text", nullable=true)
+     */
+    private $fields;
+
+    /**
      * @var Item[]
      *
      * @ORM\OneToMany(targetEntity="Item", mappedBy="app")
@@ -55,6 +76,9 @@ class App
 
         $this->setName($name);
         $this->setSlug($slug);
+
+        $this->setItemSingularName('Element');
+        $this->setItemSingularName('Elemente');
 
         $this->items=new ArrayCollection();
     }
@@ -105,5 +129,32 @@ class App
 
     public function getWorkspace(){
         return $this->workspace;
+    }
+
+    public function setItemSingularName($itemSingularName){
+        $this->itemSingularName = $itemSingularName;
+        return $this;
+    }
+
+    public function getItemSingularName(){
+        return $this->itemSingularName;
+    }
+
+    public function setItemPluralName($itemPluralName){
+        $this->itemPluralName = $itemPluralName;
+        return $this;
+    }
+
+    public function getItemPluralName(){
+        return $this->itemPluralName;
+    }
+
+    public function setFields($fields){
+        $this->fields = $fields;
+        return $this;
+    }
+
+    public function getFields(){
+        return $this->fields;
     }
 }

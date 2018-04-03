@@ -1,0 +1,33 @@
+<ol class="breadcrumb">
+    <li><a href="{{ path('crv_ma_workspace_list') }}">Home</a></li>
+    {% if workspace is defined %}
+        <li>
+            <a href="{{ path('crv_ma_app_list',{'workspaceSlug': workspace.slug}) }}">
+                {{ workspace.name }}
+            </a>
+        </li>
+    {% endif %}
+
+    {% if
+        workspace is defined and
+        appEntity is defined
+    %}
+        <li>
+            <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
+                {{ appEntity.name }}
+            </a>
+        </li>
+    {% endif %}
+
+    {% if
+        workspace is defined and
+        appEntity is defined and
+        item is defined
+    %}
+        <li>
+            <a href="{{ path('crv_ma_item_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
+                {{ appEntity.itemSingularName }} {{ item.itemId }}
+            </a>
+        </li>
+    {% endif %}
+</ol>
