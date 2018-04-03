@@ -35,13 +35,26 @@ class Item
      */
     private $data;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="revision", type="integer")
+     */
+    private $revision=1;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="current_revision", type="boolean")
+     */
+    private $currentRevision=false;
+
 
     public function __construct() {
 
     }
 
-    public function getId()
-    {
+    public function getId(){
         return $this->id;
     }
 
@@ -61,5 +74,27 @@ class Item
 
     public function getApp(){
         return $this->app;
+    }
+
+    public function getRevision(){
+        return $this->revision;
+    }
+
+    public function setRevision($revision){
+        $this->revision = $revision;
+        return $this;
+    }
+
+    public function isCurrentRevision(){
+        return $this->currentRevision;
+    }
+
+    public function getCurrentRevision(){
+        return $this->currentRevision;
+    }
+
+    public function setCurrentRevision($currentRevision){
+        $this->currentRevision = $currentRevision;
+        return $this;
     }
 }
