@@ -18,7 +18,7 @@ class MultiAppExtension extends \Twig_Extension
         return [
             new \Twig_SimpleFunction('crv_ma_format',function(AppField $appField, $default=null) {
                 return $this->formatHelper->renderAppFieldData($appField,$default);
-            }),
+            },['is_safe'=>['html']]),
         ];
     }
 
@@ -26,7 +26,7 @@ class MultiAppExtension extends \Twig_Extension
         return [
             new \Twig_SimpleFilter('crv_ma_format',function(AppField $appField, $default=null) {
                 return $this->formatHelper->renderAppFieldData($appField,$default);
-            }),
+            },['is_safe'=>['html']]),
         ];
     }
 

@@ -1,4 +1,5 @@
 {% extends '@CreavoMultiApp/base.html.twig' %}
+{% form_theme form '@CreavoMultiApp/partials/bootstrap_3_horizontal_layout.html.twig' %}
 
 {% block crv_ma_header %}
     <div class="page-header">
@@ -10,7 +11,34 @@
 
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
+    <div class="row">
+        <div class="col-sm-6">
+            <p>
+                <a href="{{ path('crv_ma_item_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}" class="btn btn-primary btn-sm">
+                    <i class="glyphicon glyphicon-forward"></i> {{ appEntity.itemSingularName }} ansehen
+                </a>
+            </p>
+        </div>
+        <div class="col-sm-6 text-right">
+            <p>
+                Zuletzt bearbeitet am {{ itemRevision.createdAt|date('d.m.Y, H:i') }} Uhr
+                {% if itemRevision.createdBy %}
+                    von {{ itemRevision.createdBy }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
 
+    <p><br /></p>
+
+    {{ form_start(form) }}
+
+    {{ form_widget(form) }}
+
+    <button class="btn btn-primary">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Speichern
+    </button>
+    {{ form_end(form) }}
 
 
 {% endblock %}

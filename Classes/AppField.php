@@ -28,14 +28,15 @@ class AppField {
 
     protected $name;
     protected $type;
+    protected $helpText;
     protected $slug;
     protected $required=false;
     protected $showListing=true;
     protected $hideWhenEmpty=false;
     protected $textArea=false;
-    protected $scale=10;
-    protected $precision=2;
+    protected $scale=2;
     protected $currency='EUR';
+    protected $choices=[];
     protected $data;
 
     public function __construct($type,$name,$slug=null) {
@@ -138,15 +139,6 @@ class AppField {
         return $this;
     }
 
-    public function getPrecision(){
-        return $this->precision;
-    }
-
-    public function setPrecision($precision){
-        $this->precision = $precision;
-        return $this;
-    }
-
     public function getData(){
         return $this->data;
     }
@@ -171,6 +163,24 @@ class AppField {
 
     public function setCurrency($currency){
         $this->currency = $currency;
+        return $this;
+    }
+
+    public function getChoices(){
+        return $this->choices;
+    }
+
+    public function setChoices($choices){
+        $this->choices = $choices;
+        return $this;
+    }
+
+    public function getHelpText(){
+        return $this->helpText;
+    }
+
+    public function setHelpText($helpText){
+        $this->helpText = $helpText;
         return $this;
     }
 

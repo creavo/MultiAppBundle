@@ -5,6 +5,7 @@ namespace Creavo\MultiAppBundle\Controller;
 use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Item;
 use Creavo\MultiAppBundle\Entity\Workspace;
+use Creavo\MultiAppBundle\Form\Type\ItemType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -115,13 +116,35 @@ class AppController extends Controller {
      */
     public function itemEditAction(Workspace $workspace, App $app, $itemId, Request $request) {
 
+        /** @var Item $item */
+        $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getByAppAndItemId($app,$itemId);
+        $itemRevision=$item->getCurrentRevision();
 
+        $form=$this->createForm(ItemType::class,$itemRevision->getData(),[
+            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
+        ]);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() AND $form->isValid()) {
+            $data=$form->getData();
+
+            $this->get('creavo_multi_app.helper.item_helper')->updateItem($item,$data);
+
+            $this->addFlash('success','Die Änderungen wurden gespeichert.');
+            return $this->redirectToRoute('crv_ma_item_detail',[
+                'workspaceSlug'=>$workspace->getSlug(),
+                'appSlug'=>$app->getSlug(),
+                'itemId'=>$itemId,
+            ]);
+        }
 
         return $this->render('@CreavoMultiApp/item/edit.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
-            'appFields'=>$this->getDoctrine()->getRepository('CreavoMultiAppBundle:App')->getItemRow($app,$item),
+            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getItemRow($item,$itemRevision),
             'item'=>$item,
+            'itemRevision'=>$itemRevision,
+            'form'=>$form->createView(),
         ]);
     }
 
