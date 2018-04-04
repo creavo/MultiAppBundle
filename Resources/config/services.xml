@@ -8,6 +8,10 @@
         <service id="creavo_multi_app.helper.format_helper" class="Creavo\MultiAppBundle\Helper\FormatHelper">
         </service>
 
+        <service id="creavo_multi_app.helper.item_helper" class="Creavo\MultiAppBundle\Helper\ItemHelper">
+            <argument type="service" id="doctrine"/>
+        </service>
+
         <service id="creavo_multi_app.twig.multi_app_extension" class="Creavo\MultiAppBundle\Twig\MultiAppExtension">
             <tag name="twig.extension" />
             <argument type="service" id="creavo_multi_app.helper.format_helper" />

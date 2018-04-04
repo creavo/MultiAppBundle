@@ -1,5 +1,12 @@
 # MultiAppBundle
 
+This bundle aims to create a light-wight platform to create lists/tables (here named apps) based on dynamically fields (like you can add a text-field to a table on the fly). In some functions its similar to podio. 
+
+## requirements
+
+* symfony-instance (version 3.3, maybe older is possible, haven't testet it yet)
+* MySQL-database with JSON-functions (like json_contains or json_extract - available in mysql 5.7 or maria-db 10.2)
+
 ## installation
 
 Use `composer require creavo/multi-app-bundle` to install bundle.

@@ -25,7 +25,11 @@
             <tbody>
             {% for row in pagination %}
                 <tr class="link" data-href="{{ path('crv_ma_item_detail', {'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': row.item.itemId}) }}">
-                    <td>{{ row.item.itemId }}</td>
+                    <td>
+                        <a href="{{ path('crv_ma_item_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': row.item.itemId}) }}">
+                            {{ row.item.itemId }}
+                        </a>
+                    </td>
                     {% for appField in row.fields %}
                         {% if appField.showListing %}
                             <td class="{{ appField.tableClass }}">

@@ -58,7 +58,7 @@ class AppController extends Controller {
         foreach($pagination AS $item) {
             $items[]=[
                 'item'=>$item,
-                'fields'=>$this->getDoctrine()->getRepository('CreavoMultiAppBundle:App')->getItemRow($app,$item),
+                'fields'=>$this->get('creavo_multi_app.helper.item_helper')->getItemRow($item),
             ];
         }
         $pagination->setItems($items);
@@ -66,7 +66,7 @@ class AppController extends Controller {
         return $this->render('CreavoMultiAppBundle:item:list.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
-            'appFields'=>$this->getDoctrine()->getRepository('CreavoMultiAppBundle:App')->getAppFieldsFromApp($app),
+            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
             'pagination'=>$pagination,
         ]);
     }
@@ -83,13 +83,23 @@ class AppController extends Controller {
      */
     public function itemDetailAction(Workspace $workspace, App $app, $itemId, Request $request) {
 
-        $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getCurrentRevisionItem($app,$itemId);
+        /** @var Item $item */
+        $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getByAppAndItemId($app,$itemId);
+
+        $itemRevision=$item->getCurrentRevision();
+        if(
+            $revisionNumber=$request->query->getInt('revision') AND
+            $this->getDoctrine()->getRepository('CreavoMultiAppBundle:ItemRevision')->getByItemAndNumber($item,$revisionNumber)
+        ) {
+            $itemRevision=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:ItemRevision')->getByItemAndNumber($item,$revisionNumber);
+        }
 
         return $this->render('@CreavoMultiApp/item/detail.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
-            'appFields'=>$this->getDoctrine()->getRepository('CreavoMultiAppBundle:App')->getItemRow($app,$item),
+            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getItemRow($item,$itemRevision),
             'item'=>$item,
+            'itemRevision'=>$itemRevision,
         ]);
     }
 
@@ -105,7 +115,7 @@ class AppController extends Controller {
      */
     public function itemEditAction(Workspace $workspace, App $app, $itemId, Request $request) {
 
-        $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getCurrentRevisionItem($app,$itemId);
+
 
         return $this->render('@CreavoMultiApp/item/edit.html.twig',[
             'workspace'=>$workspace,

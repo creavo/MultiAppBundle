@@ -2,11 +2,8 @@
 
 namespace Creavo\MultiAppBundle\Repository;
 
-use AppBundle\Entity\User;
 use Creavo\MultiAppBundle\Entity\App;
-use Creavo\MultiAppBundle\Entity\Item;
 use Doctrine\ORM\AbstractQuery;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -23,7 +20,6 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository {
         $qb=$this->createQueryBuilder('i');
 
         $qb
-            ->andWhere('i.currentRevision = TRUE')
             ->andWhere('i.app = :app')
             ->setParameter('app',$app);
 
@@ -47,142 +43,10 @@ class ItemRepository extends \Doctrine\ORM\EntityRepository {
         return 1;
     }
 
-    public function getNextRevisionNumber(Item $item) {
-
-        if(!$item->getItemId()) {
-            return 1;
-        }
-
-        /** @var QueryBuilder $qb */
-        $qb=$this->createQueryBuilder('i');
-
-        $qb
-            ->select('MAX(i.revision)')
-            ->andWhere('i.app = :app')
-            ->setParameter('app',$item->getApp())
-            ->andWhere('i.itemId = :itemId')
-            ->setParameter('itemId',$item->getItemId())
-        ;
-
-        if($result=(int)$qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR)) {
-            return $result+1;
-        }
-
-        return 1;
-    }
-
-    public function saveItem(Item $item, Item $oldItem=null, User $user=null) {
-
-        if(
-            $oldItem AND
-            $hash1=$item->getDataHash() AND
-            $hash2=$oldItem->getDataHash() AND
-            $hash1===$hash2
-        ) {
-            // nothing changed - no need to save
-            return $oldItem;
-        }
-
-        /** @var EntityManager $em */
-        $em=$this->getEntityManager();
-
-        $item->setCurrentRevision(true);
-        if($user) {
-            $item->setCreatedBy($user);
-        }
-
-        if($oldItem) {
-            $item->setItemId($oldItem->getItemId());
-            $item->setRevision($this->getNextRevisionNumber($oldItem));
-        }else{
-            $item->setItemId($this->getNextItemId($item->getApp()));
-        }
-
-        // set currentRevision to false
-        $this->setCurrentRevisionToFalse($item);
-
-        $em->persist($item);
-        $em->flush();
-
-        $this->deleteOldRevisions($item,100);
-
-        return $item;
-    }
-
-    public function newItemFrom(Item $oldItem) {
-
-        $item=new Item();
-        $item->setApp($oldItem->getApp());
-        $item->setItemId($oldItem->getItemId());
-
-        return $item;
-    }
-
-    public function getCurrentRevisionItem(App $app, $itemId) {
-
-        /** @var QueryBuilder $qb */
-        $qb=$this->createQueryBuilder('i');
-
-        $qb
-            ->andWhere('i.app = :app')
-            ->setParameter('app',$app)
-            ->andWhere('i.itemId = :itemId')
-            ->setParameter('itemId',$itemId)
-            ->addOrderBy('i.revision','desc')
-            ->setMaxResults(1);
-
-        return $qb->getQuery()->getOneOrNullResult();
-    }
-
-    protected function deleteOldRevisions(Item $item, $keepRevision=100) {
-
-        $ids=[];
-
-        /** @var QueryBuilder $qb */
-        $qb=$this->createQueryBuilder('i');
-
-        $qb
-            ->select('i.id')
-            ->andWhere('i.app = :app')
-            ->setParameter('app',$item->getApp())
-            ->andWhere('i.itemId = :itemId')
-            ->setParameter('itemId',$item->getItemId())
-            ->andWhere('i.currentRevision = FALSE')
-            ->addOrderBy('i.revision','desc')
-            ->setFirstResult($keepRevision)
-            ->setMaxResults(100);
-
-        foreach($qb->getQuery()->getResult() AS $row) {
-            $ids[]=$row['id'];
-        }
-
-        if(count($ids)>0) {
-            /** @var QueryBuilder $qb */
-            $qb=$this->_em->createQueryBuilder();
-
-            $qb
-                ->delete('CreavoMultiAppBundle:Item','i')
-                ->andWhere('i.id IN (:ids)')
-                ->setParameter('ids',$ids);
-
-            $qb->getQuery()->execute();
-        }
-    }
-
-    protected function setCurrentRevisionToFalse(Item $item) {
-
-        /** @var QueryBuilder $qb */
-        $qb=$this->_em->createQueryBuilder();
-
-        $qb
-            ->update('CreavoMultiAppBundle:Item','i')
-            ->set('i.currentRevision',':currentRevision')
-            ->setParameter('currentRevision',false)
-            ->andWhere('i.app = :app')
-            ->setParameter('app',$item->getApp())
-            ->andWhere('i.itemId = :itemId')
-            ->setParameter('itemId',$item->getItemId());
-
-        $qb->getQuery()->execute();
+    public function getByAppAndItemId(App $app, $itemId) {
+        return $this->findOneBy([
+            'app'=>$app,
+            'itemId'=>$itemId,
+        ]);
     }
 }

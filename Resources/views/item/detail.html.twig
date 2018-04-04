@@ -2,7 +2,12 @@
 
 {% block crv_ma_header %}
     <div class="page-header">
-        <h1>{{ appEntity.itemSingularName }} {{ item.itemId }}</h1>
+        <h1>
+            {{ appEntity.itemSingularName }} {{ item.itemId }}
+            {% if item.currentRevision!=itemRevision %}
+                <small>Revision {{ itemRevision.revision }}</small>
+            {% endif %}
+        </h1>
     </div>
 {% endblock %}
 
@@ -11,9 +16,9 @@
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
     <p class="text-right">
-        Zuletzt bearbeitet am {{ item.createdAt|date('d.m.Y, H:i') }} Uhr
-        {% if item.createdBy %}
-            von {{ item.createdBy }}
+        Zuletzt bearbeitet am {{ itemRevision.createdAt|date('d.m.Y, H:i') }} Uhr
+        {% if itemRevision.createdBy %}
+            von {{ itemRevision.createdBy }}
         {% endif %}
     </p>
 

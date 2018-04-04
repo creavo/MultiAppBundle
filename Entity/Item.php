@@ -3,6 +3,7 @@
 namespace Creavo\MultiAppBundle\Entity;
 
 use AppBundle\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="crv_ma_items", indexes={
  *      @ORM\Index(name="item_id_idx", columns={"item_id"}),
- *      @ORM\Index(name="search_idx", columns={"app_id","item_id","current_revision"})
+ *      @ORM\Index(name="search_idx", columns={"app_id","item_id"})
  * })
  * @ORM\Entity(repositoryClass="Creavo\MultiAppBundle\Repository\ItemRepository")
  */
@@ -40,25 +41,11 @@ class Item
     private $itemId;
 
     /**
-     * @var array
+     * @var ItemRevision
      *
-     * @ORM\Column(name="data", type="json_array")
+     * @ORM\OneToOne(targetEntity="ItemRevision")
      */
-    private $data;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="revision", type="integer")
-     */
-    private $revision=1;
-
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="current_revision", type="boolean")
-     */
-    private $currentRevision=false;
+    private $currentRevision;
 
     /**
      * @var \DateTime
@@ -74,30 +61,25 @@ class Item
      */
     private $createdBy;
 
+    /**
+     * @var ItemRevision[]
+     *
+     * @ORM\OneToMany(targetEntity="ItemRevision", mappedBy="item")
+     */
+    private $itemRevisions;
+
 
     public function __construct() {
+        $this->itemRevisions=new ArrayCollection();
         $this->createdAt=new \DateTime('now');
     }
 
-    public function getDataHash() {
-        if($this->getData()) {
-            return md5(json_encode($this->getData()));
-        }
-
-        return null;
+    public function __toString() {
+        return 'Item '.$this->getId();
     }
 
     public function getId(){
         return $this->id;
-    }
-
-    public function setData($data){
-        $this->data = $data;
-        return $this;
-    }
-
-    public function getData(){
-        return $this->data;
     }
 
     public function setApp(\Creavo\MultiAppBundle\Entity\App $app = null){
@@ -107,28 +89,6 @@ class Item
 
     public function getApp(){
         return $this->app;
-    }
-
-    public function getRevision(){
-        return $this->revision;
-    }
-
-    public function setRevision($revision){
-        $this->revision = $revision;
-        return $this;
-    }
-
-    public function isCurrentRevision(){
-        return $this->currentRevision;
-    }
-
-    public function getCurrentRevision(){
-        return $this->currentRevision;
-    }
-
-    public function setCurrentRevision($currentRevision){
-        $this->currentRevision = $currentRevision;
-        return $this;
     }
 
     public function getItemId(){
@@ -156,5 +116,27 @@ class Item
 
     public function getCreatedBy(){
         return $this->createdBy;
+    }
+
+    public function setCurrentRevision(\Creavo\MultiAppBundle\Entity\ItemRevision $currentRevision = null){
+        $this->currentRevision = $currentRevision;
+        return $this;
+    }
+
+    public function getCurrentRevision(){
+        return $this->currentRevision;
+    }
+
+    public function addItemRevision(\Creavo\MultiAppBundle\Entity\ItemRevision $itemRevision){
+        $this->itemRevisions[] = $itemRevision;
+        return $this;
+    }
+
+    public function removeItemRevision(\Creavo\MultiAppBundle\Entity\ItemRevision $itemRevision){
+        $this->itemRevisions->removeElement($itemRevision);
+    }
+
+    public function getItemRevisions(){
+        return $this->itemRevisions;
     }
 }
