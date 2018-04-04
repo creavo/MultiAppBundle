@@ -1,6 +1,8 @@
 # MultiAppBundle
 
-This bundle aims to create a light-wight platform to create lists/tables (here named apps) based on dynamically fields (like you can add a text-field to a table on the fly). In some functions its similar to podio. 
+This bundle aims to create a light-wight platform to create lists/tables (here named apps) based on dynamically fields (like you can add a text-field to a table on the fly). In some functions its similar to podio.
+
+## Status: alpha - do not use! :)
 
 ## requirements
 
@@ -50,3 +52,21 @@ Add the following bundles to your AppKernel.php:
         
         [...]
     }
+    
+## styling
+
+This bundle brings a basic ui, based on bootstrap 3.3. Overwrite the base `@CreavoMultiApp/base.html.twig` to match the markers you use in your templates.
+    
+## usage
+
+Create new item:
+
+    $this->get('crv.ma.item')->createItem($myApp,['field1'=>'value1','field2'=>'value2']);
+    
+Update item (creates a new revision in the background):
+
+    $this->get('crv.ma.item')->updateItem($myItem,['field1'=>'value0815','field2'=>'value4711']);
+    
+Get item-data with app-fields
+
+    $this->get('crv.ma.item')->getItemRow($myItem);

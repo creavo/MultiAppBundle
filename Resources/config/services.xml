@@ -5,6 +5,8 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
+        <service id="crv.ma.item" alias="creavo_multi_app.helper.item_helper"/>
+
         <service id="creavo_multi_app.helper.format_helper" class="Creavo\MultiAppBundle\Helper\FormatHelper">
         </service>
 

@@ -21,6 +21,15 @@ class ItemHelper {
         $this->em=$registry->getManager();
     }
 
+    /**
+     * creates a new item in the given app
+     *
+     * @param App $app
+     * @param array $data
+     * @param User|null $user
+     * @param bool $flush
+     * @return Item
+     */
     public function createItem(App $app, array $data, User $user=null, $flush=true) {
 
         $item=new Item();
@@ -48,6 +57,15 @@ class ItemHelper {
         return $item;
     }
 
+    /**
+     * updates an item (only when given data has changed)
+     *
+     * @param Item $item
+     * @param array $data
+     * @param User|null $user
+     * @param bool $flush
+     * @return Item
+     */
     public function updateItem(Item $item, array $data, User $user=null, $flush=true) {
 
         $itemRevision=new ItemRevision();
@@ -74,6 +92,13 @@ class ItemHelper {
         return $item;
     }
 
+    /**
+     * returns AppFields filled with data from given item
+     *
+     * @param Item $item
+     * @param ItemRevision|null $itemRevision
+     * @return array
+     */
     public function getItemRow(Item $item, ItemRevision $itemRevision=null) {
 
         $fields=$this->getAppFieldsFromApp($item->getApp());
