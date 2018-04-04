@@ -15,40 +15,24 @@
 
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
-    <div class="row">
-        <div class="col-sm-6">
-            <p>
-                <a href="{{ path('crv_ma_item_edit',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}" class="btn btn-primary btn-sm">
-                    <i class="glyphicon glyphicon-edit"></i> {{ appEntity.itemSingularName }} bearbeiten
-                </a>
-            </p>
-        </div>
-        <div class="col-sm-6 text-right">
-            <p>
-                Zuletzt bearbeitet am {{ itemRevision.createdAt|date('d.m.Y, H:i') }} Uhr
-                {% if itemRevision.createdBy %}
-                    von {{ itemRevision.createdBy }}
-                {% endif %}
-            </p>
-        </div>
-    </div>
-
-    <p><br /></p>
+    {% include '@CreavoMultiApp/item/nav.html.twig' %}
 
     <div class="row">
         <div class="col-sm-8">
 
             {% for appField in appFields %}
-                <div class="row">
-                    <div class="col-sm-3">
-                        <strong>{{ appField.name }}</strong>
+                {% if not appField.hideWhenEmpty or appField.data is not null %}
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <strong>{{ appField.name }}</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            {{ appField|crv_ma_format('-') }}
+                        </div>
                     </div>
-                    <div class="col-sm-9">
-                        {{ appField|crv_ma_format('-') }}
-                    </div>
-                </div>
 
-                <p><br /></p>
+                    <p><br /></p>
+                {% endif %}
             {% endfor %}
 
         </div>

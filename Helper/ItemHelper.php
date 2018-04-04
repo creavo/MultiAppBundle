@@ -32,6 +32,9 @@ class ItemHelper {
      */
     public function createItem(App $app, array $data, User $user=null, $flush=true) {
 
+        $normalizer=new Normalizer($this->getAppFieldsFromApp($app));
+        $data=$normalizer->transformDataToDatabase($data);
+
         $item=new Item();
         $item->setApp($app);
         $item->setItemId($this->em->getRepository('CreavoMultiAppBundle:Item')->getNextItemId($app));
@@ -67,6 +70,9 @@ class ItemHelper {
      * @return Item
      */
     public function updateItem(Item $item, array $data, User $user=null, $flush=true) {
+
+        $normalizer=new Normalizer($this->getAppFieldsFromApp($item->getApp()));
+        $data=$normalizer->transformDataToDatabase($data);
 
         $itemRevision=new ItemRevision();
         $itemRevision->setData($data);
@@ -107,6 +113,9 @@ class ItemHelper {
         if($itemRevision) {
             $data=$itemRevision->getData();
         }
+
+        $normalizer=new Normalizer($this->getAppFieldsFromApp($item->getApp()));
+        $data=$normalizer->transformDataToPhp($data);
 
         /** @var AppField $field */
         foreach($fields AS $field) {

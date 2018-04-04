@@ -5,6 +5,7 @@ namespace Creavo\MultiAppBundle\Form\Type;
 use Creavo\MultiAppBundle\Classes\AppField;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -66,7 +67,7 @@ class ItemType extends AbstractType {
                     break;
 
                 case AppField::TYPE_DATETIME:
-
+                    $this->buildDateTimeForm($appField);
                     break;
 
                 case AppField::TYPE_BOOLEAN:
@@ -77,6 +78,29 @@ class ItemType extends AbstractType {
 
         }
 
+    }
+
+    protected function buildDateTimeForm(AppField $appField) {
+
+        $required=false;
+        $label=$appField->getName();
+        $constraints=[];
+
+        if($appField->getRequired()) {
+            $required=true;
+            $label.='*';
+            $constraints[]=new NotNull(['message'=>'Dieses Feld muss gefüllt werden.']);
+        }
+
+        $this->builder->add($appField->getSlug(),DateTimeType::class,[
+            'required'=>$required,
+            'label'=>$label,
+            'constraints'=>$constraints,
+            'date_format'=>'dd.MM.yyyy',
+            'attr'=>[
+                'help'=>$appField->getHelpText(),
+            ],
+        ]);
     }
 
     protected function buildBooleanForm(AppField $appField) {

@@ -59,7 +59,7 @@ class FormatHelper {
                 break;
 
             case AppField::TYPE_DATETIME:
-
+                return $appField->getData()->format('d.m.Y H:i:s');
                 break;
 
             case AppField::TYPE_BOOLEAN:

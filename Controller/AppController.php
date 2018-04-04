@@ -6,6 +6,7 @@ use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Item;
 use Creavo\MultiAppBundle\Entity\Workspace;
 use Creavo\MultiAppBundle\Form\Type\ItemType;
+use Creavo\MultiAppBundle\Helper\Normalizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -120,7 +121,10 @@ class AppController extends Controller {
         $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getByAppAndItemId($app,$itemId);
         $itemRevision=$item->getCurrentRevision();
 
-        $form=$this->createForm(ItemType::class,$itemRevision->getData(),[
+        $normalizer=new Normalizer($this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($item->getApp()));
+        $data=$normalizer->transformDataToPhp($itemRevision->getData());
+
+        $form=$this->createForm(ItemType::class,$data,[
             'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
         ]);
         $form->handleRequest($request);

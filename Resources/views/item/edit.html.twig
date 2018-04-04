@@ -11,25 +11,7 @@
 
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
-    <div class="row">
-        <div class="col-sm-6">
-            <p>
-                <a href="{{ path('crv_ma_item_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}" class="btn btn-primary btn-sm">
-                    <i class="glyphicon glyphicon-forward"></i> {{ appEntity.itemSingularName }} ansehen
-                </a>
-            </p>
-        </div>
-        <div class="col-sm-6 text-right">
-            <p>
-                Zuletzt bearbeitet am {{ itemRevision.createdAt|date('d.m.Y, H:i') }} Uhr
-                {% if itemRevision.createdBy %}
-                    von {{ itemRevision.createdBy }}
-                {% endif %}
-            </p>
-        </div>
-    </div>
-
-    <p><br /></p>
+    {% include '@CreavoMultiApp/item/nav.html.twig' %}
 
     {{ form_start(form) }}
 
