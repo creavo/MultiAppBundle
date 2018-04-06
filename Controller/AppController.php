@@ -2,6 +2,7 @@
 
 namespace Creavo\MultiAppBundle\Controller;
 
+use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Item;
 use Creavo\MultiAppBundle\Entity\Workspace;
@@ -10,6 +11,7 @@ use Creavo\MultiAppBundle\Helper\Normalizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -71,6 +73,70 @@ class AppController extends Controller {
             'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
             'pagination'=>$pagination,
         ]);
+    }
+
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/ajax", name="crv_ma_item_list_ajax")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param Request $request
+     * @return JsonResponse
+     * @throws \Doctrine\ORM\NoResultException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function listItemsAjaxAction(Workspace $workspace, App $app, Request $request) {
+
+        $columns=$request->request->get('columns');
+        $order=$request->request->get('order');
+
+        $data=[
+            'draw'=>$request->request->getInt('draw'),
+            'recordsTotal'=>0,
+            'recordsFiltered'=>0,
+            'data'=>[],
+        ];
+
+        $qb=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getQueryBuilderByApp($app);
+
+        $data['recordsTotal']=(clone $qb)->select('COUNT(i)')->getQuery()->getSingleScalarResult();
+
+        // TODO: filter
+
+        $data['recordsFiltered']=(clone $qb)->select('COUNT(i)')->getQuery()->getSingleScalarResult();
+
+        $qb
+            ->setFirstResult($request->request->getInt('start',0))
+            ->setMaxResults($request->request->getInt('length',10));
+
+        if(isset($order[0]['column']) AND isset($order[0]['dir'])) {
+            // TODO: sort
+        }
+
+        $items=$qb->getQuery()->getResult();
+
+        /** @var Item $item */
+        foreach($items AS $item) {
+
+            /** @var AppField $appField */
+            foreach($this->get('creavo_multi_app.helper.item_helper')->getItemRow($item) AS $appField) {
+                $fields[$appField->getSlug()]=$this->get('creavo_multi_app.helper.format_helper')->renderAppFieldData($appField);
+            }
+            $fields['DT_RowId']='item_'.$item->getId();
+            $fields['DT_RowData']=[
+                'id'=>$item->getId(),
+                'link'=>$this->generateUrl('crv_ma_item_detail',[
+                    'workspaceSlug'=>$workspace->getSlug(),
+                    'appSlug'=>$app->getSlug(),
+                    'itemId'=>$item->getItemId(),
+                ]),
+            ];
+            //$fields['_meta']='<a href="#" class="btn btn-sm btn-default">Details</a>';
+            $data['data'][]=$fields;
+        }
+
+        return new JsonResponse($data);
     }
 
     /**
