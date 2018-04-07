@@ -13,6 +13,25 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class App
 {
+
+    const ICONS=[
+        'glyphicon glyphicon-asterisk'=>1,
+        'glyphicon glyphicon-cloud'=>2,
+        'glyphicon glyphicon-envelope'=>3,
+        'glyphicon glyphicon-music'=>4,
+        'glyphicon glyphicon-heart'=>5,
+        'glyphicon glyphicon-star'=>6,
+        'glyphicon glyphicon-user'=>7,
+        'glyphicon glyphicon-film'=>8,
+        'glyphicon glyphicon-cog'=>9,
+        'glyphicon glyphicon-road'=>10,
+        'glyphicon glyphicon-time'=>11,
+        'glyphicon glyphicon-stats'=>12,
+        'glyphicon glyphicon-king'=>13,
+        'glyphicon glyphicon-lamp'=>14,
+        'glyphicon glyphicon-piggy-bank'=>15,
+    ];
+
     /**
      * @var int
      *
@@ -71,6 +90,27 @@ class App
      */
     private $workspace;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="icon", type="smallint", nullable=true)
+     */
+    private $icon;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="created_at", type="datetime", nullable=true)
+     */
+    private $createdAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+     */
+    private $updatedAt;
+
 
     public function __construct($name,$slug){
 
@@ -79,6 +119,8 @@ class App
 
         $this->setItemSingularName('Element');
         $this->setItemSingularName('Elemente');
+
+        $this->setCreatedAt(new \DateTime('now'));
 
         $this->items=new ArrayCollection();
     }
@@ -157,4 +199,35 @@ class App
     public function getFields(){
         return $this->fields;
     }
+
+    public function getIcon(){
+        return $this->icon;
+    }
+
+    public function setIcon($icon){
+        $this->icon = $icon;
+        return $this;
+    }
+
+    public function getCreatedAt(){
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt($createdAt){
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(){
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt($updatedAt){
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+
+
+
 }

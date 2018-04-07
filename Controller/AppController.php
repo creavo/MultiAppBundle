@@ -76,6 +76,23 @@ class AppController extends Controller {
     }
 
     /**
+     * @Route("/{workspaceSlug}/{appSlug}/edit", name="crv_ma_app_edit")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editAppAction(Workspace $workspace, App $app, Request $request) {
+
+        return $this->render('@CreavoMultiApp/app/edit.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+        ]);
+    }
+
+    /**
      * @Route("/{workspaceSlug}/{appSlug}/ajax", name="crv_ma_item_list_ajax")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
      * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
@@ -83,7 +100,6 @@ class AppController extends Controller {
      * @param App $app
      * @param Request $request
      * @return JsonResponse
-     * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function listItemsAjaxAction(Workspace $workspace, App $app, Request $request) {
@@ -99,6 +115,9 @@ class AppController extends Controller {
         ];
 
         $qb=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getQueryBuilderByApp($app);
+        $qb
+            ->addSelect('ir')
+            ->join('i.currentRevision','ir');
 
         $data['recordsTotal']=(clone $qb)->select('COUNT(i)')->getQuery()->getSingleScalarResult();
 
@@ -110,8 +129,15 @@ class AppController extends Controller {
             ->setFirstResult($request->request->getInt('start',0))
             ->setMaxResults($request->request->getInt('length',10));
 
-        if(isset($order[0]['column']) AND isset($order[0]['dir'])) {
-            // TODO: sort
+        if(
+            isset($order[0]['column']) AND
+            isset($order[0]['dir']) AND
+            isset($columns[$order[0]['column']]) AND
+            $dir=$order[0]['dir'] AND
+            in_array($dir,['asc','desc'],false)
+        ) {
+            $slug=$columns[$order[0]['column']]['name'];
+            //$qb->addOrderBy("JSON_EXTRACT(ir.data,'$.".$slug."')",$dir);
         }
 
         $items=$qb->getQuery()->getResult();

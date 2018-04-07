@@ -11,26 +11,24 @@
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
     {% if pagination|length>0 %}
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div class="row">
             {% for appEntity in pagination %}
-                <tr>
-                    <td>{{ appEntity.id }}</td>
-                    <td>
-                        <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
-                            {{ appEntity.name }}
-                        </a>
-                    </td>
-                </tr>
+                <div class="col-sm-3">
+                    <div class="panel panel-default">
+                        <div class="panel-body text-center" style="padding-top:25px;">
+                            <p>
+                                <i class="{{ appEntity.icon|default('glyphicon glyphicon-briefcase') }}" style="font-size:40px;"></i>
+                            </p>
+                            <p>
+                                <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
+                                    {{ appEntity.name }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-            </tbody>
-        </table>
+        </div>
     {% else %}
         <div class="alert alert-info">
             Es wurden keine Apps gefunden.

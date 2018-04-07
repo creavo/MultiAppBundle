@@ -10,6 +10,15 @@
 
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
+    <p class="text-right">
+        <a href="{{ path('crv_ma_app_edit',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-primary">
+            <i class="glyphicon glyphicon-plus"></i> {{ appEntity.itemSingularName }} erstellen
+        </a>
+        <a href="{{ path('crv_ma_app_edit',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-default">
+            <i class="glyphicon glyphicon-pencil"></i> App bearbeiten
+        </a>
+    </p>
+
     {% if pagination|length>0 %}
         <table class="table table-striped" id="table">
             <thead>
@@ -54,8 +63,8 @@
 
 {% block crv_ma_javascripts %}
 
-    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function(){
@@ -73,6 +82,7 @@
                         "last": "Letzte Seite"
                     }
                 },
+                "responsive": true,
                 "stateSave": true,
                 "processing": true,
                 "serverSide": true,
@@ -99,7 +109,7 @@
 {% endblock %}
 
 {% block crv_ma_stylesheets %}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" />
 
     <style type="text/css">
         #table tbody tr {

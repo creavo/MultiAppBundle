@@ -132,6 +132,10 @@ class ItemHelper {
         $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
         $fields=json_decode($app->getFields(),true);
 
+        if($fields===null) {
+            return [];
+        }
+
         $data=[];
         foreach($fields AS $field) {
             $data[]=$serializer->deserialize(json_encode($field),AppField::class,'json');
@@ -140,7 +144,7 @@ class ItemHelper {
         return $data;
     }
 
-    protected function setAppFieldsForApp(App $app, array $fields) {
+    public function setAppFieldsForApp(App $app, array $fields) {
 
         $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
 
