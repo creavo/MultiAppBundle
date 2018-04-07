@@ -1,5 +1,5 @@
 {% extends '@CreavoMultiApp/base.html.twig' %}
-{% form_theme form '@CreavoMultiApp/partials/bootstrap_3_horizontal_layout.html.twig' %}
+{% form_theme form '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
 
 {% block crv_ma_header %}
     <div class="page-header">
@@ -15,13 +15,16 @@
 
     {{ form_start(form) }}
 
+    <p>
+        <strong>
+            Dieses Element wirklich endgültig löschen?
+        </strong>
+    </p>
+
     {{ form_widget(form) }}
 
-    <button class="btn btn-primary" name="redirect" value="detail">
-        <i class="glyphicon glyphicon-floppy-disk"></i> Speichern
-    </button>
-    <button class="btn btn-primary" name="redirect" value="list">
-        <i class="glyphicon glyphicon-floppy-disk"></i> Speichern und zur Liste
+    <button class="btn btn-danger">
+        <i class="glyphicon glyphicon-floppy-disk"></i> Endgültig löschen
     </button>
     {{ form_end(form) }}
 

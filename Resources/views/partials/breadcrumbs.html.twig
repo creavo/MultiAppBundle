@@ -30,4 +30,10 @@
             </a>
         </li>
     {% endif %}
+
+    {% if current is defined %}
+        <li>
+            {{ current }}
+        </li>
+    {% endif %}
 </ol>

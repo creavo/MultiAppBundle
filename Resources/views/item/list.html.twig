@@ -11,7 +11,7 @@
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
     <p class="text-right">
-        <a href="{{ path('crv_ma_app_edit',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-primary">
+        <a href="{{ path('crv_ma_item_create',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-primary">
             <i class="glyphicon glyphicon-plus"></i> {{ appEntity.itemSingularName }} erstellen
         </a>
         <a href="{{ path('crv_ma_app_edit',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-default">
@@ -19,45 +19,21 @@
         </a>
     </p>
 
-    {% if pagination|length>0 %}
-        <table class="table table-striped" id="table">
-            <thead>
-            <tr>
-                {% for appField in appFields %}
-                    {% if appField.showListing %}
-                        <th>{{ appField.name }}</th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-            {#
-            {% for row in pagination %}
-                <tr class="link" data-href="{{ path('crv_ma_item_detail', {'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': row.item.itemId}) }}">
-                    <td>
-                        <a href="{{ path('crv_ma_item_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': row.item.itemId}) }}">
-                            {{ row.item.itemId }}
-                        </a>
-                    </td>
-                    {% for appField in row.fields %}
-                        {% if appField.showListing %}
-                            <td class="{{ appField.tableClass }}">
-                                {{ appField|crv_ma_format('-') }}
-                            </td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-            #}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="alert alert-info">
-            Es wurden keine {{ appEntity.itemSingularName }} gefunden.
-        </div>
-    {% endif %}
+    <p><br /></p>
 
-    {{ knp_pagination_render(pagination) }}
+    <table class="table table-striped" id="table">
+        <thead>
+        <tr>
+            {% for appField in appFields %}
+                {% if appField.showListing %}
+                    <th>{{ appField.name }}</th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 
 {% endblock %}
 

@@ -13,6 +13,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ItemRevision
 {
+
+    const TYPE_CREATED=1;
+    const TYPE_UPDATED=2;
+    const TYPE_MARKED_AS_DELETED=3;
+
     /**
      * @var int
      *
@@ -57,9 +62,17 @@ class ItemRevision
      */
     private $createdBy;
 
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="type", type="smallint")
+     */
+    private $type;
+
 
     public function __construct() {
         $this->createdAt=new \DateTime('now');
+        $this->setType(self::TYPE_UPDATED);
     }
 
     public function __toString() {
@@ -122,4 +135,15 @@ class ItemRevision
     public function getCreatedBy(){
         return $this->createdBy;
     }
+
+    public function getType(){
+        return $this->type;
+    }
+
+    public function setType($type){
+        $this->type = $type;
+        return $this;
+    }
+
+
 }

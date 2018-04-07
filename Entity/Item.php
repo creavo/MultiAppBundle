@@ -68,9 +68,24 @@ class Item
      */
     private $itemRevisions;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
+     */
+    private $deletedAt;
+
+    /**
+     * @var Activity[]
+     *
+     * @ORM\OneToMany(targetEntity="Activity", mappedBy="item")
+     */
+    private $activities;
+
 
     public function __construct() {
         $this->itemRevisions=new ArrayCollection();
+        $this->activities=new ArrayCollection();
         $this->createdAt=new \DateTime('now');
     }
 
@@ -138,5 +153,52 @@ class Item
 
     public function getItemRevisions(){
         return $this->itemRevisions;
+    }
+
+    public function getDeletedAt(){
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt($deletedAt){
+        $this->deletedAt = $deletedAt;
+        return $this;
+    }
+
+
+
+    /**
+     * Add activity.
+     *
+     * @param \Creavo\MultiAppBundle\Entity\Activity $activity
+     *
+     * @return Item
+     */
+    public function addActivity(\Creavo\MultiAppBundle\Entity\Activity $activity)
+    {
+        $this->activities[] = $activity;
+
+        return $this;
+    }
+
+    /**
+     * Remove activity.
+     *
+     * @param \Creavo\MultiAppBundle\Entity\Activity $activity
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeActivity(\Creavo\MultiAppBundle\Entity\Activity $activity)
+    {
+        return $this->activities->removeElement($activity);
+    }
+
+    /**
+     * Get activities.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getActivities()
+    {
+        return $this->activities;
     }
 }

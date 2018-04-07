@@ -1,4 +1,5 @@
 {% extends '@CreavoMultiApp/base.html.twig' %}
+{% form_theme form '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
 
 {% block crv_ma_header %}
     <div class="page-header">
@@ -38,8 +39,137 @@
         </div>
         <div class="col-sm-4">
 
+            {{ form_start(form) }}
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h5 class="panel-title">Neuer Kommentar</h5>
+                </div>
+                <div class="panel-body">
+                    {{ form_widget(form) }}
+                </div>
+                <div class="panel-footer">
+                    <button class="btn btn-primary btn-sm">
+                        <i class="glyphicon glyphicon-floppy-disk"></i> Speichern
+                    </button>
+                </div>
+            </div>
+            {{ form_end(form) }}
+
+            <div class="panel panel-default">
+                <div class="panel-heading text-center">
+                    <h5 class="panel-title">Aktivitäten</h5>
+                </div>
+                <div class="panel-body">
+                    <ul id="stream-list" class="list-unstyled">
+
+                    </ul>
+
+                    <p class="text-center" id="stream-loading" style="display: none;">
+                        <i class="glyphicon glyphicon-refresh gly-spin" style="font-size:30px;"></i>
+                    </p>
+
+                    <p class="text-center" id="stream-load-more" style="display: none;">
+                        <button class="btn btn-default btn-sm">
+                            Mehr anzeigen
+                        </button>
+                    </p>
+
+                </div>
+            </div>
+
         </div>
     </div>
 
+
+{% endblock %}
+
+{% block crv_ma_javascripts %}
+
+    <script type="text/javascript">
+        var offset=0;
+
+        function loadDataStream() {
+            $('#stream-load-more').hide();
+            $('#stream-loading').show();
+            $.ajax({
+                url: "{{ path('crv_ma_item_activity_ajax',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}",
+                data: {
+                    offset: offset
+                },
+                success: function(data) {
+                    $('#stream-loading').hide();
+                    $.each(data.items, function(index,row) {
+                        var html='<li style="margin-bottom: 15px;">';
+                        html+=row.message;
+                        if(row.comment) {
+                            html+='<br />'+row.comment;
+                        }
+                        html+='</li>';
+                        $('#stream-list').append(html);
+                    });
+                    offset+=10;
+
+                    if(data.more) {
+                        $('#stream-load-more').show();
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            loadDataStream();
+
+            $('#stream-load-more button').on('click',function() {
+                loadDataStream();
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block crv_ma_stylesheets %}
+
+    <style type="text/css">
+        .gly-spin {
+            -webkit-animation: spin 2s infinite linear;
+            -moz-animation: spin 2s infinite linear;
+            -o-animation: spin 2s infinite linear;
+            animation: spin 2s infinite linear;
+        }
+        @-moz-keyframes spin {
+            0% {
+                -moz-transform: rotate(0deg);
+            }
+            100% {
+                -moz-transform: rotate(359deg);
+            }
+        }
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+            }
+        }
+        @-o-keyframes spin {
+            0% {
+                -o-transform: rotate(0deg);
+            }
+            100% {
+                -o-transform: rotate(359deg);
+            }
+        }
+        @keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg);
+            }
+        }
+    </style>
 
 {% endblock %}

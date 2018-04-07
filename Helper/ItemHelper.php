@@ -4,6 +4,7 @@ namespace Creavo\MultiAppBundle\Helper;
 
 use AppBundle\Entity\User;
 use Creavo\MultiAppBundle\Classes\AppField;
+use Creavo\MultiAppBundle\Entity\Activity;
 use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Item;
 use Creavo\MultiAppBundle\Entity\ItemRevision;
@@ -43,6 +44,7 @@ class ItemHelper {
         }
 
         $itemRevision=new ItemRevision();
+        $itemRevision->setType(ItemRevision::TYPE_CREATED);
         $itemRevision->setItem($item);
         $itemRevision->setData($data);
         if($user) {
@@ -51,8 +53,12 @@ class ItemHelper {
         $item->addItemRevision($itemRevision);
         $item->setCurrentRevision($itemRevision);
 
+        $activity=new Activity($item,Activity::TYPE_ITEM_CREATED,$user);
+        $activity->setItemRevision($itemRevision);
+
         $this->em->persist($item);
         $this->em->persist($itemRevision);
+        $this->em->persist($activity);
 
         if($flush) {
             $this->em->flush();
@@ -84,18 +90,38 @@ class ItemHelper {
 
         $itemRevision->setItem($item);
         $itemRevision->setRevision($this->em->getRepository('CreavoMultiAppBundle:ItemRevision')->getNextRevisionNumber($item));
-        if($user) {
-            $itemRevision->setCreatedBy($user);
-        }
+        $itemRevision->setCreatedBy($user);
         $item->addItemRevision($itemRevision);
         $item->setCurrentRevision($itemRevision);
 
+        $activity=new Activity($item,Activity::TYPE_ITEM_UPDATED,$user);
+        $activity->setItemRevision($itemRevision);
+
         $this->em->persist($itemRevision);
+        $this->em->persist($activity);
 
         if($flush) {
             $this->em->flush();
         }
         return $item;
+    }
+
+    /**
+     * deletes an item from database
+     *
+     * @param Item $item
+     */
+    public function deleteItem(Item $item) {
+
+        $item->setCurrentRevision(null);
+
+        foreach($item->getItemRevisions() AS $itemRevision) {
+            $this->em->remove($itemRevision);
+        }
+        $this->em->flush();
+
+        $this->em->remove($item);
+        $this->em->flush();
     }
 
     /**

@@ -18,6 +18,11 @@
             <i class="glyphicon glyphicon-edit"></i> Bearbeiten
         </a>
     </li>
+    <li class="{% if app.request.get('_route')=='crv_ma_item_delete' %}active{% endif %}">
+        <a href="{{ path('crv_ma_item_delete',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
+            <i class="glyphicon glyphicon-remove"></i> Löschen
+        </a>
+    </li>
 
     <li>
         <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
