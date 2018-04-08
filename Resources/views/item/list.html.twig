@@ -39,8 +39,11 @@
 
 {% block crv_ma_javascripts %}
 
+    {#
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    #}
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.16/b-1.5.1/b-colvis-1.5.1/cr-1.4.1/fh-3.1.3/r-2.2.1/sc-1.4.4/sl-1.2.5/datatables.min.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function(){
@@ -49,6 +52,7 @@
                     "processing": "Bitte warten...",
                     "search": "Suche",
                     "info": "Zeige _START_ bis _END_ von _TOTAL_ {{ appEntity.itemPluralName }}",
+                    "sInfoEmpty": "Zeige 0 bis 0 von 0 {{ appEntity.itemPluralName }}",
                     "infoFiltered": "(gefiltert von _MAX_ {{ appEntity.itemPluralName }})",
                     "lengthMenu": "Zeige_MENU_ {{ appEntity.itemPluralName }}",
                     "zeroRecords": "Keine {{ appEntity.itemPluralName }} gefunden.",
@@ -63,6 +67,8 @@
                 "stateSave": true,
                 "processing": true,
                 "serverSide": true,
+                "fixedHeader": true,
+                "colReorder": true,
                 "ajax": {
                     url: "{{ path('crv_ma_item_list_ajax', {'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}",
                     type: "POST"
@@ -93,7 +99,8 @@
 {% endblock %}
 
 {% block crv_ma_stylesheets %}
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" />
+    {#<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css" />#}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.16/b-1.5.1/b-colvis-1.5.1/cr-1.4.1/fh-3.1.3/r-2.2.1/sc-1.4.4/sl-1.2.5/datatables.min.css" />
 
     <style type="text/css">
         #table tbody tr {

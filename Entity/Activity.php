@@ -17,6 +17,7 @@ class Activity {
     const TYPE_ITEM_UPDATED=2;
     const TYPE_ITEM_DELETED=3;
     const TYPE_COMMENT=4;
+    const TYPE_ITEM_RESTORED=5;
 
     /**
      * @var int
@@ -86,19 +87,23 @@ class Activity {
         }
 
         if($this->getType()===self::TYPE_ITEM_CREATED) {
-            return $itemSingularName.' wurde von '.$user.' erstellt';
+            return $itemSingularName.' wurde erstellt';
         }
 
         if($this->getType()===self::TYPE_ITEM_UPDATED) {
-            return $itemSingularName.' wurde von '.$user.' bearbeitet';
+            return $itemSingularName.' wurde bearbeitet';
         }
 
         if($this->getType()===self::TYPE_ITEM_DELETED) {
-            return $itemSingularName.' wurde von '.$user.' gelöscht';
+            return $itemSingularName.' wurde gelöscht';
+        }
+
+        if($this->getType()===self::TYPE_ITEM_RESTORED) {
+            return $itemSingularName.' wurde wiederhergestellt';
         }
 
         if($this->getType()===self::TYPE_COMMENT) {
-            return $user.' kommentierte';
+            //return $user.' kommentierte';
         }
 
         return '';

@@ -1,5 +1,4 @@
 {% extends '@CreavoMultiApp/base.html.twig' %}
-{% form_theme form '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
 
 {% block crv_ma_header %}
     <div class="page-header">
@@ -19,7 +18,7 @@
     {% include '@CreavoMultiApp/item/nav.html.twig' %}
 
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-7">
 
             {% for appField in appFields %}
                 {% if not appField.hideWhenEmpty or appField.data is not null %}
@@ -37,30 +36,15 @@
             {% endfor %}
 
         </div>
-        <div class="col-sm-4">
+        <div class="col-sm-5">
 
             {{ form_start(form) }}
-            <div class="panel panel-default">
-                <div class="panel-heading text-center">
-                    <h5 class="panel-title">Neuer Kommentar</h5>
-                </div>
-                <div class="panel-body">
-                    {{ form_widget(form) }}
-                </div>
-                <div class="panel-footer">
-                    <button class="btn btn-primary btn-sm">
-                        <i class="glyphicon glyphicon-floppy-disk"></i> Speichern
-                    </button>
-                </div>
-            </div>
-            {{ form_end(form) }}
-
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="stream-panel">
                 <div class="panel-heading text-center">
                     <h5 class="panel-title">Aktivitäten</h5>
                 </div>
                 <div class="panel-body">
-                    <ul id="stream-list" class="list-unstyled">
+                    <ul id="stream-list" class="chat">
 
                     </ul>
 
@@ -75,7 +59,18 @@
                     </p>
 
                 </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        {{ form_row(form.comment, {'attr': {'class': 'form-control input-sm'}}) }}
+                        <input id="btn-input" type="text" class="form-control input-sm" placeholder="Neuer Kommentar..." />
+                        <span class="input-group-btn">
+                            <button class="btn btn-warning btn-sm">Speichern</button>
+                        </span>
+                    </div>
+                </div>
             </div>
+            {{ form_widget(form) }}
+            {{ form_end(form) }}
 
         </div>
     </div>
@@ -99,11 +94,29 @@
                 success: function(data) {
                     $('#stream-loading').hide();
                     $.each(data.items, function(index,row) {
-                        var html='<li style="margin-bottom: 15px;">';
+                        var html='<li class="clearfix left">';
+                        html+='<span class="chat-img pull-left"><img src="http://placehold.it/50/55C1E7/fff&text='+row.createdBy.charAt(0).toUpperCase()+'" alt="'+row.createdBy+'" class="img-circle img-responsive" /></span>';
+                        html+='<div class="chat-body clearfix">';
+                        html+='<div class="header">';
+                        html+='<strong class="primary-font">'+row.createdBy+'</strong>';
+                        html+='<small class="pull-right text-muted">';
+                        html+='<span class="glyphicon glyphicon-time"></span> '+row.createdAt+'</small>';
+                        html+='</div>';
+                        html+='<p>';
+                        if(row.message) {
+                            html+='<em>'+row.message+'</em>';
+                        }
+                        if(row.comment) {
+                            html+=row.comment;
+                        }
+                        html+='</p>';
+                        html+='</div>';
+                        /*
                         html+=row.message;
                         if(row.comment) {
                             html+='<br />'+row.comment;
                         }
+                        */
                         html+='</li>';
                         $('#stream-list').append(html);
                     });
@@ -170,6 +183,58 @@
                 transform: rotate(359deg);
             }
         }
+
+        {# from: https://bootsnipp.com/snippets/featured/chat-widget #}
+        .chat {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .chat li {
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px dotted #B3A9A9;
+        }
+
+        .chat li.left .chat-body {
+            margin-left: 60px;
+        }
+
+        .chat li.right .chat-body {
+            margin-right: 60px;
+        }
+
+
+        .chat li .chat-body p {
+            margin: 0;
+            color: #777777;
+        }
+
+        .panel .slidedown .glyphicon, .chat .glyphicon {
+            margin-right: 5px;
+        }
+
+        #stream-panel .panel-body {
+            overflow-y: scroll;
+            height: 500px;
+        }
+
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            background-color: #F5F5F5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+            background-color: #555;
+        }
+
     </style>
 
 {% endblock %}
