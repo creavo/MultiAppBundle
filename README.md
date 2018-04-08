@@ -21,6 +21,7 @@ Add the following to your config.yml (add to doctrine-section):
                 string_functions:
                     JSON_EXTRACT: Creavo\MultiAppBundle\Doctrine\JsonExtract
                     JSON_CONTAINS: Creavo\MultiAppBundle\Doctrine\JsonContains
+                    JSON_SEARCH: Creavo\MultiAppBundle\Doctrine\JsonSearch
                     
 Add the following later on in your config.yml:
 

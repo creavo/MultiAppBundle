@@ -51,6 +51,7 @@
                     "info": "Zeige _START_ bis _END_ von _TOTAL_ {{ appEntity.itemPluralName }}",
                     "infoFiltered": "(gefiltert von _MAX_ {{ appEntity.itemPluralName }})",
                     "lengthMenu": "Zeige_MENU_ {{ appEntity.itemPluralName }}",
+                    "zeroRecords": "Keine {{ appEntity.itemPluralName }} gefunden.",
                     "paginate": {
                         "first": "Erste Seite",
                         "previous": "zurück",
@@ -68,10 +69,17 @@
                 },
                 "columns": [
                     {% for appField in appFields %}
-                    {% if appField.showListing %}
-                    {% if loop.index0!=0 %},{% endif %}
-                    {"name": "{{ appField.slug }}", "data": "{{ appField.slug }}", "defaultContent": "-"}
-                    {% endif %}
+                        {% if appField.showListing %}
+                            {% if loop.index0!=0 %},{% endif %}
+                            {
+                                "name": "{{ appField.slug }}",
+                                "data": "{{ appField.slug }}",
+                                "defaultContent": "-",
+                                "orderable": true,
+                                "searchable": true,
+                                "className": "{% if appField.align=='right' %}text-right{% elseif appField.align=='center' %}text-center{% else %}text-left{% endif %}"
+                            }
+                        {% endif %}
                     {% endfor %}
                 ]
             });

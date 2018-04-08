@@ -48,16 +48,16 @@ class AppField {
         }
     }
 
-    public function getTableClass() {
+    public function getAlign() {
 
         if(in_array($this->getType(),[
             self::TYPE_NUMBER,
             self::TYPE_MONEY,
         ],false)) {
-            return 'text-right';
+            return 'right';
         }
 
-        return '';
+        return 'left';
     }
 
     public function getName(){

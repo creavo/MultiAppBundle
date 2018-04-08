@@ -32,11 +32,11 @@ class FormatHelper {
                 break;
 
             case AppField::TYPE_NUMBER:
-                return number_format($appField->getData(),$appField->getScale());
+                return number_format($appField->getData(),$appField->getScale(),',','.');
                 break;
 
             case AppField::TYPE_MONEY:
-                return number_format($appField->getData(),$appField->getScale()).' '.$appField->getCurrency();
+                return number_format($appField->getData(),$appField->getScale(),',','.').' '.$appField->getCurrency();
                 break;
 
             case AppField::TYPE_URL:

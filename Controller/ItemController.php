@@ -52,6 +52,7 @@ class ItemController extends Controller {
 
         $columns=$request->request->get('columns');
         $order=$request->request->get('order');
+        $search=$request->request->get('search');
 
         $data=[
             'draw'=>$request->request->getInt('draw'),
@@ -67,7 +68,17 @@ class ItemController extends Controller {
 
         $data['recordsTotal']=(clone $qb)->select('COUNT(i)')->getQuery()->getSingleScalarResult();
 
-        // TODO: filter
+        if(
+            $search AND
+            isset($search['value']) AND
+            $searchTerm=$search['value']
+        ) {
+            $searchTerms=explode(' ',$searchTerm);
+            foreach($searchTerms AS $number=>$term) {
+                $qb
+                    ->andWhere("JSON_SEARCH(ir.data,'one','%".$term."%') IS NOT NULL");
+            }
+        }
 
         $data['recordsFiltered']=(clone $qb)->select('COUNT(i)')->getQuery()->getSingleScalarResult();
 
@@ -83,7 +94,7 @@ class ItemController extends Controller {
             in_array($dir,['asc','desc'],false)
         ) {
             $slug=$columns[$order[0]['column']]['name'];
-            //$qb->addOrderBy("JSON_EXTRACT(ir.data,'$.".$slug."')",$dir);
+            $qb->addOrderBy("JSON_EXTRACT(ir.data,'$.".$slug."')",$dir);
         }
 
         $items=$qb->getQuery()->getResult();
@@ -104,12 +115,29 @@ class ItemController extends Controller {
                     'itemId'=>$item->getItemId(),
                 ]),
             ];
-            //$fields['_meta']='<a href="#" class="btn btn-sm btn-default">Details</a>';
             $data['data'][]=$fields;
         }
 
         return new JsonResponse($data);
     }
+
+    protected function _uniord($c) {
+    if (ord($c{0}) >=0 && ord($c{0}) <= 127)
+        return ord($c{0});
+    if (ord($c{0}) >= 192 && ord($c{0}) <= 223)
+        return (ord($c{0})-192)*64 + (ord($c{1})-128);
+    if (ord($c{0}) >= 224 && ord($c{0}) <= 239)
+        return (ord($c{0})-224)*4096 + (ord($c{1})-128)*64 + (ord($c{2})-128);
+    if (ord($c{0}) >= 240 && ord($c{0}) <= 247)
+        return (ord($c{0})-240)*262144 + (ord($c{1})-128)*4096 + (ord($c{2})-128)*64 + (ord($c{3})-128);
+    if (ord($c{0}) >= 248 && ord($c{0}) <= 251)
+        return (ord($c{0})-248)*16777216 + (ord($c{1})-128)*262144 + (ord($c{2})-128)*4096 + (ord($c{3})-128)*64 + (ord($c{4})-128);
+    if (ord($c{0}) >= 252 && ord($c{0}) <= 253)
+        return (ord($c{0})-252)*1073741824 + (ord($c{1})-128)*16777216 + (ord($c{2})-128)*262144 + (ord($c{3})-128)*4096 + (ord($c{4})-128)*64 + (ord($c{5})-128);
+    if (ord($c{0}) >= 254 && ord($c{0}) <= 255)    //  error
+        return FALSE;
+    return 0;
+}
 
     /**
      * @Route("/{workspaceSlug}/{appSlug}/create-item", name="crv_ma_item_create")
