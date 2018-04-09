@@ -4,11 +4,12 @@ namespace Creavo\MultiAppBundle\Form\Type;
 
 use Creavo\MultiAppBundle\Entity\App;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 class AppBasicType extends AbstractType {
 
@@ -45,6 +46,16 @@ class AppBasicType extends AbstractType {
                     'max'=>64,
                 ]),
             ],
+        ]);
+
+        $builder->add('icon',ChoiceType::class,[
+            'label'=>'Symbol',
+            'required'=>true,
+            'constraints'=>[
+                new NotNull(),
+            ],
+            'choices'=>App::ICONS,
+            'expanded'=>true,
         ]);
 
     }

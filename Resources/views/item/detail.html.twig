@@ -105,6 +105,11 @@
                 },
                 success: function(data) {
                     $('#stream-loading').hide();
+
+                    if(offset===0 && data.items.length===0) {
+                        $('#stream-list').append('<li class="text-center alert alert-info" style="padding-bottom:15px;">Es konnten keine Elemente gefunden werden.</li>');
+                    }
+
                     $.each(data.items, function(index,row) {
                         var html='<li class="clearfix left">';
                         html+='<span class="chat-img pull-left"><img src="http://placehold.it/50/55C1E7/fff&text='+row.createdBy.charAt(0).toUpperCase()+'" alt="'+row.createdBy+'" class="img-circle img-responsive" /></span>';
