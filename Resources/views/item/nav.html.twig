@@ -1,5 +1,11 @@
 <p><br /></p>
 
+{% if item.deleted %}
+    <div class="alert alert-info">
+        Dieses Element ist als gelöscht markiert und wird vom System demnächst automatisch endgültig entfernt. <a href="{{ path('crv_ma_item_restore',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">{{ item.app.itemSingularName }} wiederherstellen</a>
+    </div>
+{% endif %}
+
 <p class="pull-right">
     Zuletzt bearbeitet am {{ itemRevision.createdAt|date('d.m.Y, H:i') }} Uhr
     {% if itemRevision.createdBy %}
@@ -10,19 +16,27 @@
 <ul class="nav nav-tabs">
     <li class="{% if app.request.get('_route')=='crv_ma_item_detail' %}active{% endif %}">
         <a href="{{ path('crv_ma_item_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
-            <i class="glyphicon glyphicon-info-sign"></i> Details
+            <i class="glyphicon glyphicon-info-sign"></i> Details &amp; Aktivitäten
         </a>
     </li>
-    <li class="{% if app.request.get('_route')=='crv_ma_item_edit' %}active{% endif %}">
-        <a href="{{ path('crv_ma_item_edit',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
-            <i class="glyphicon glyphicon-edit"></i> Bearbeiten
-        </a>
-    </li>
-    <li class="{% if app.request.get('_route')=='crv_ma_item_delete' %}active{% endif %}">
-        <a href="{{ path('crv_ma_item_delete',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
-            <i class="glyphicon glyphicon-remove"></i> Löschen
-        </a>
-    </li>
+    {% if item.deleted %}
+        <li class="{% if app.request.get('_route')=='crv_ma_item_restore' %}active{% endif %}">
+            <a href="{{ path('crv_ma_item_restore',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
+                <i class="glyphicon glyphicon-repeat"></i> Wiederherstellen
+            </a>
+        </li>
+    {% else %}
+        <li class="{% if app.request.get('_route')=='crv_ma_item_edit' %}active{% endif %}">
+            <a href="{{ path('crv_ma_item_edit',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
+                <i class="glyphicon glyphicon-edit"></i> Bearbeiten
+            </a>
+        </li>
+        <li class="{% if app.request.get('_route')=='crv_ma_item_delete' %}active{% endif %}">
+            <a href="{{ path('crv_ma_item_delete',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}">
+                <i class="glyphicon glyphicon-remove"></i> Löschen
+            </a>
+        </li>
+    {% endif %}
 
     <li>
         <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">

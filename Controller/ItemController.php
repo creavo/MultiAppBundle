@@ -238,6 +238,10 @@ class ItemController extends Controller {
         $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getByAppAndItemId($app,$itemId);
         $itemRevision=$item->getCurrentRevision();
 
+        if($item->isDeleted()) {
+            throw $this->createNotFoundException('item is deleted');
+        }
+
         $normalizer=new Normalizer($this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($item->getApp()));
         $data=$normalizer->transformDataToPhp($itemRevision->getData());
 
@@ -300,6 +304,10 @@ class ItemController extends Controller {
         $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getByAppAndItemId($app,$itemId);
         $itemRevision=$item->getCurrentRevision();
 
+        if($item->isDeleted()) {
+            throw $this->createNotFoundException('item is already deleted');
+        }
+
         $builder=$this->createFormBuilder();
         $builder->add('delete',CheckboxType::class,[
             'label'=>$app->getItemSingularName().' wirklich löschen',
@@ -314,7 +322,7 @@ class ItemController extends Controller {
 
         if($form->isSubmitted() AND $form->isValid()) {
 
-            $this->get('creavo_multi_app.helper.item_helper')->deleteItem($item);
+            $this->get('creavo_multi_app.helper.item_helper')->softDeleteItem($item,$this->getUser());
 
             $this->addFlash('success',$app->getItemSingularName().' wurde gelöscht.');
             return $this->redirectToRoute('crv_ma_item_list',[
@@ -324,6 +332,60 @@ class ItemController extends Controller {
         }
 
         return $this->render('@CreavoMultiApp/item/delete.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getItemRow($item,$itemRevision),
+            'item'=>$item,
+            'itemRevision'=>$itemRevision,
+            'form'=>$form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/{itemId}/restore", name="crv_ma_item_restore")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param $itemId
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    public function itemRestoreAction(Workspace $workspace, App $app, $itemId, Request $request) {
+
+        /** @var Item $item */
+        $item=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getByAppAndItemId($app,$itemId);
+        $itemRevision=$item->getCurrentRevision();
+
+        if(!$item->isDeleted()) {
+            throw $this->createNotFoundException('item is not soft-deleted');
+        }
+
+        $builder=$this->createFormBuilder();
+        $builder->add('restore',CheckboxType::class,[
+            'label'=>$app->getItemSingularName().' wirklich wiederherstellen',
+            'required'=>true,
+            'constraints'=>[
+                new IsTrue(),
+            ]
+        ]);
+
+        $form=$builder->getForm();
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() AND $form->isValid()) {
+
+            $this->get('creavo_multi_app.helper.item_helper')->restoreItem($item,$this->getUser());
+
+            $this->addFlash('success',$app->getItemSingularName().' wurde wiederhergestellt.');
+            return $this->redirectToRoute('crv_ma_item_detail',[
+                'workspaceSlug'=>$workspace->getSlug(),
+                'appSlug'=>$app->getSlug(),
+                'itemId'=>$item->getItemId(),
+            ]);
+        }
+
+        return $this->render('@CreavoMultiApp/item/restore.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
             'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getItemRow($item,$itemRevision),

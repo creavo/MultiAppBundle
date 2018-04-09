@@ -93,6 +93,14 @@ class Item
         return 'Item '.$this->getId();
     }
 
+    public function isDeleted() {
+        if($this->getDeletedAt()) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function getId(){
         return $this->id;
     }

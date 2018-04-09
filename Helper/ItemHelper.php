@@ -107,11 +107,12 @@ class ItemHelper {
     }
 
     /**
-     * deletes an item from database
+     * hard-deletes / remove really an item
      *
      * @param Item $item
+     * @param User|null $user
      */
-    public function deleteItem(Item $item) {
+    public function hardDeleteItem(Item $item, User $user=null) {
 
         $item->setCurrentRevision(null);
 
@@ -122,6 +123,40 @@ class ItemHelper {
 
         $this->em->remove($item);
         $this->em->flush();
+    }
+
+    /**
+     * soft-deletes an item
+     *
+     * @param Item $item
+     * @param User|null $user
+     * @return Item
+     */
+    public function softDeleteItem(Item $item, User $user=null) {
+
+        $item->setDeletedAt(new \DateTime('now'));
+
+        $activity=new Activity($item,Activity::TYPE_ITEM_DELETED,$user);
+        $this->em->persist($activity);
+        $this->em->flush();
+        return $item;
+    }
+
+    /**
+     * restores an soft-deleted item
+     *
+     * @param Item $item
+     * @param User|null $user
+     * @return Item
+     */
+    public function restoreItem(Item $item, User $user=null) {
+
+        $item->setDeletedAt(null);
+
+        $activity=new Activity($item,Activity::TYPE_ITEM_RESTORED,$user);
+        $this->em->persist($activity);
+        $this->em->flush();
+        return $item;
     }
 
     /**
