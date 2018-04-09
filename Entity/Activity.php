@@ -78,6 +78,16 @@ class Activity {
         $this->setCreatedAt(new \DateTime('now'));
     }
 
+    public function hasDetail() {
+        if(in_array($this->getType(),[
+            self::TYPE_ITEM_UPDATED,
+        ],false)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function __toString() {
 
         $itemSingularName=$this->item->getApp()->getItemSingularName();

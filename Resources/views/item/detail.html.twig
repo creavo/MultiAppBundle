@@ -23,7 +23,7 @@
             {% for appField in appFields %}
                 {% if not appField.hideWhenEmpty or appField.data is not null %}
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-3 text-right">
                             <strong>{{ appField.name }}</strong>
                         </div>
                         <div class="col-sm-9">
@@ -38,7 +38,6 @@
         </div>
         <div class="col-sm-5">
 
-            {{ form_start(form) }}
             <div class="panel panel-default" id="stream-panel">
                 <div class="panel-heading text-center">
                     <h5 class="panel-title">Aktivitäten</h5>
@@ -57,20 +56,19 @@
                             Mehr anzeigen
                         </button>
                     </p>
-
                 </div>
                 <div class="panel-footer">
+                    {{ form_start(form) }}
                     <div class="input-group">
-                        {{ form_row(form.comment, {'attr': {'class': 'form-control input-sm'}}) }}
-                        <input id="btn-input" type="text" class="form-control input-sm" placeholder="Neuer Kommentar..." />
+                        {{ form_row(form.comment, {'attr': {'class': 'form-control input-sm', 'placeholder': 'Neuer Kommentar...'}}) }}
                         <span class="input-group-btn">
                             <button class="btn btn-warning btn-sm">Speichern</button>
                         </span>
                     </div>
+                    {{ form_widget(form) }}
+                    {{ form_end(form) }}
                 </div>
             </div>
-            {{ form_widget(form) }}
-            {{ form_end(form) }}
 
         </div>
     </div>
@@ -105,6 +103,9 @@
                         html+='<p>';
                         if(row.message) {
                             html+='<em>'+row.message+'</em>';
+                        }
+                        if(row.hasDetail) {
+                            html+='&nbsp;<button class="btn btn-default btn-xs">Details</button>'
                         }
                         if(row.comment) {
                             html+=row.comment;

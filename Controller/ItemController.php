@@ -46,6 +46,7 @@ class ItemController extends Controller {
      * @param App $app
      * @param Request $request
      * @return JsonResponse
+     * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function listItemsAjaxAction(Workspace $workspace, App $app, Request $request) {
@@ -376,6 +377,7 @@ class ItemController extends Controller {
                     'createdBy'=>$activity->getCreatedBy() ? $activity->getCreatedBy()->__toString() : 'anonym',
                     'message'=>$activity->__toString(),
                     'comment'=>$activity->getComment(),
+                    'hasDetail'=>$activity->hasDetail(),
                 ];
                 continue;
             }
