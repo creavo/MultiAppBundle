@@ -1,0 +1,17 @@
+<p><br /></p>
+
+<ul class="nav nav-tabs">
+    <li class="{% if app.request.get('_route')=='crv_ma_app_edit_basics' %}active{% endif %}">
+        <a href="{{ path('crv_ma_app_edit_basics',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
+            <i class="glyphicon glyphicon-info-sign"></i> Basics
+        </a>
+    </li>
+
+    <li>
+        <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
+            <i class="glyphicon glyphicon-list"></i> zur Liste
+        </a>
+    </li>
+</ul>
+
+<p><br /></p>
