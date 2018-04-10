@@ -38,9 +38,19 @@
         </div>
         <div class="col-sm-5">
 
-            <div class="panel panel-default" id="stream-panel">
-                <div class="panel-heading text-center">
-                    <h5 class="panel-title">Aktivitäten</h5>
+            <div class="panel panel-default with-nav-tabs" id="stream-panel">
+                <div class="panel-heading">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#" data-type="all">Alles</a>
+                        </li>
+                        <li>
+                            <a href="#" data-type="activity">Aktivität</a>
+                        </li>
+                        <li>
+                            <a href="#" data-type="comments">Kommentare</a>
+                        </li>
+                    </ul>
                 </div>
                 <div class="panel-body">
                     <ul id="stream-list" class="chat">
@@ -82,6 +92,7 @@
 
     <script type="text/javascript">
         var offset=0;
+        var type='all';
 
         function loadDataStream() {
             $('#stream-load-more').hide();
@@ -89,10 +100,16 @@
             $.ajax({
                 url: "{{ path('crv_ma_item_activity_ajax',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.itemId}) }}",
                 data: {
-                    offset: offset
+                    offset: offset,
+                    type: type
                 },
                 success: function(data) {
                     $('#stream-loading').hide();
+
+                    if(offset===0 && data.items.length===0) {
+                        $('#stream-list').append('<li class="text-center alert alert-info" style="padding-bottom:15px;">Es konnten keine Elemente gefunden werden.</li>');
+                    }
+
                     $.each(data.items, function(index,row) {
                         var html='<li class="clearfix left">';
                         html+='<span class="chat-img pull-left"><img src="http://placehold.it/50/55C1E7/fff&text='+row.createdBy.charAt(0).toUpperCase()+'" alt="'+row.createdBy+'" class="img-circle img-responsive" /></span>';
@@ -114,12 +131,6 @@
                         }
                         html+='</p>';
                         html+='</div>';
-                        /*
-                        html+=row.message;
-                        if(row.comment) {
-                            html+='<br />'+row.comment;
-                        }
-                        */
                         html+='</li>';
                         $('#stream-list').append(html);
                     });
@@ -136,6 +147,15 @@
             loadDataStream();
 
             $('#stream-load-more button').on('click',function() {
+                loadDataStream();
+            });
+
+            $('#stream-panel .nav-tabs a').on('click',function(e) {
+                e.preventDefault();
+                type=$(this).data('type');
+                offset=0;
+                $(this).tab('show');
+                $('#stream-list').html('');
                 loadDataStream();
             });
         });
@@ -235,6 +255,58 @@
 
         ::-webkit-scrollbar-thumb {
             -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+            background-color: #555;
+        }
+
+        {# from: https://bootsnipp.com/snippets/featured/panels-with-nav-tabs #}
+
+        .panel.with-nav-tabs .panel-heading{
+            padding: 5px 5px 0 5px;
+        }
+        .panel.with-nav-tabs .nav-tabs{
+            border-bottom: none;
+        }
+        .panel.with-nav-tabs .nav-justified{
+            margin-bottom: -1px;
+        }
+
+        .with-nav-tabs.panel-default .nav-tabs > li > a,
+        .with-nav-tabs.panel-default .nav-tabs > li > a:hover,
+        .with-nav-tabs.panel-default .nav-tabs > li > a:focus {
+            color: #777;
+        }
+        .with-nav-tabs.panel-default .nav-tabs > .open > a,
+        .with-nav-tabs.panel-default .nav-tabs > .open > a:hover,
+        .with-nav-tabs.panel-default .nav-tabs > .open > a:focus,
+        .with-nav-tabs.panel-default .nav-tabs > li > a:hover,
+        .with-nav-tabs.panel-default .nav-tabs > li > a:focus {
+            color: #777;
+            background-color: #ddd;
+            border-color: transparent;
+        }
+        .with-nav-tabs.panel-default .nav-tabs > li.active > a,
+        .with-nav-tabs.panel-default .nav-tabs > li.active > a:hover,
+        .with-nav-tabs.panel-default .nav-tabs > li.active > a:focus {
+            color: #555;
+            background-color: #fff;
+            border-color: #ddd;
+            border-bottom-color: transparent;
+        }
+        .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu {
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+        .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > li > a {
+            color: #777;
+        }
+        .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > li > a:hover,
+        .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > li > a:focus {
+            background-color: #ddd;
+        }
+        .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a,
+        .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a:hover,
+        .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a:focus {
+            color: #fff;
             background-color: #555;
         }
 

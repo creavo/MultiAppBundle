@@ -2,16 +2,12 @@
 
 namespace Creavo\MultiAppBundle\Controller;
 
-use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Entity\App;
-use Creavo\MultiAppBundle\Entity\Item;
 use Creavo\MultiAppBundle\Entity\Workspace;
-use Creavo\MultiAppBundle\Form\Type\ItemType;
-use Creavo\MultiAppBundle\Helper\Normalizer;
+use Creavo\MultiAppBundle\Form\Type\AppBasicType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -46,7 +42,7 @@ class AppController extends Controller {
     }
 
     /**
-     * @Route("/{workspaceSlug}/{appSlug}/edit", name="crv_ma_app_edit")
+     * @Route("/{workspaceSlug}/{appSlug}/edit-basics", name="crv_ma_app_edit_basics")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
      * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
      * @param Workspace $workspace
@@ -54,9 +50,41 @@ class AppController extends Controller {
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function editAppAction(Workspace $workspace, App $app, Request $request) {
+    public function editAppBasicsAction(Workspace $workspace, App $app, Request $request) {
 
-        return $this->render('@CreavoMultiApp/app/edit.html.twig',[
+        $form=$this->createForm(AppBasicType::class,$app);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() AND $form->isValid()) {
+
+            $this->getDoctrine()->getManager()->flush();
+            $this->addFlash('success','Die App wurde gespeichert.');
+
+            return $this->redirectToRoute('crv_ma_app_edit_basics',[
+                'workspaceSlug'=>$workspace->getSlug(),
+                'appSlug'=>$app->getSlug(),
+            ]);
+        }
+
+        return $this->render('@CreavoMultiApp/app/edit_basics.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+            'form'=>$form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/edit-fields", name="crv_ma_app_edit_fields")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editAppFieldsAction(Workspace $workspace, App $app, Request $request) {
+
+        return $this->render('@CreavoMultiApp/app/edit_fields.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
         ]);

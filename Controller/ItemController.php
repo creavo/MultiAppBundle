@@ -425,6 +425,18 @@ class ItemController extends Controller {
             ->setMaxResults(11)
             ->addOrderBy('a.id','desc');
 
+        if($type=$request->query->get('type')) {
+            if($type==='activity') {
+                $qb
+                    ->andWhere('a.type != :type')
+                    ->setParameter('type',Activity::TYPE_COMMENT);
+            }elseif($type==='comments') {
+                $qb
+                    ->andWhere('a.type = :type')
+                    ->setParameter('type',Activity::TYPE_COMMENT);
+            }
+        }
+
         $counter=0;
 
         /** @var Activity $activity */
