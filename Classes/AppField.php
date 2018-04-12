@@ -13,6 +13,7 @@ class AppField {
     const TYPE_PROGRESS=7;
     const TYPE_DATETIME=8;
     const TYPE_BOOLEAN=9;
+    const TYPE_RELATION=10;
 
     const TYPES=[
         'Text'=>self::TYPE_STRING,
@@ -24,6 +25,7 @@ class AppField {
         'Fortschritt'=>self::TYPE_PROGRESS,
         'Zeitpunkt'=>self::TYPE_DATETIME,
         'Ja/Nein'=>self::TYPE_BOOLEAN,
+        'Relation'=>self::TYPE_RELATION,
     ];
 
     protected $name;
@@ -37,6 +39,7 @@ class AppField {
     protected $scale=2;
     protected $currency='EUR';
     protected $choices=[];
+    protected $relationClass;
     protected $data;
 
     public function __construct($type,$name,$slug=null) {
@@ -181,6 +184,15 @@ class AppField {
 
     public function setHelpText($helpText){
         $this->helpText = $helpText;
+        return $this;
+    }
+
+    public function getRelationClass(){
+        return $this->relationClass;
+    }
+
+    public function setRelationClass($relationClass){
+        $this->relationClass = $relationClass;
         return $this;
     }
 

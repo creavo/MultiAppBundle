@@ -56,9 +56,9 @@ class ItemRevision
     private $createdAt;
 
     /**
-     * @var User
+     * @var int
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\Column(name="created_by", type="integer", nullable=true)
      */
     private $createdBy;
 
@@ -127,15 +127,6 @@ class ItemRevision
         return $this->item;
     }
 
-    public function setCreatedBy(\AppBundle\Entity\User $createdBy = null){
-        $this->createdBy = $createdBy;
-        return $this;
-    }
-
-    public function getCreatedBy(){
-        return $this->createdBy;
-    }
-
     public function getType(){
         return $this->type;
     }
@@ -145,5 +136,12 @@ class ItemRevision
         return $this;
     }
 
+    public function setCreatedBy($createdBy){
+        $this->createdBy = $createdBy;
+        return $this;
+    }
 
+    public function getCreatedBy(){
+        return $this->createdBy;
+    }
 }

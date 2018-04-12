@@ -3,11 +3,30 @@
 namespace Creavo\MultiAppBundle\Helper;
 
 use Creavo\MultiAppBundle\Classes\AppField;
+use Creavo\MultiAppBundle\Interfaces\AbstractEntityInterface;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Component\Routing\RouterInterface;
 
 class FormatHelper {
 
-    public function __construct() {
+    /** @var \Doctrine\Common\Persistence\ObjectManager */
+    protected $em;
 
+    /** @var array */
+    protected $relations;
+
+    /** @var RouterInterface */
+    protected $router;
+
+    public function __construct(Registry $registry, RouterInterface $router, array $relations=[]) {
+        $this->em=$registry->getManager();
+        $this->router=$router;
+
+        foreach($relations AS $key=>$relation) {
+            $relations[$key]['repository']=$this->em->getRepository($relation['class']);
+        }
+        $this->relations=$relations;
     }
 
     public function renderAppFieldData(AppField $appField, $default=null, $html=true) {
@@ -69,6 +88,37 @@ class FormatHelper {
                 if($appField->getData()===false) {
                     return 'Nein';
                 }
+                break;
+
+            case AppField::TYPE_RELATION:
+
+                if(
+                    isset($this->relations[$appField->getRelationClass()]) AND
+                    $relation=$this->relations[$appField->getRelationClass()]
+                ) {
+                    /** @var EntityRepository $repository */
+                    $repository=$this->relations[$appField->getRelationClass()]['repository'];
+
+                    /** @var AbstractEntityInterface $entity */
+                    $entity=$repository->find($appField->getData());
+
+                    if($entity) {
+                        $return=$entity->__toString();
+                        if(
+                            $html AND
+                            $relation['route'] AND
+                            $relation['route_id_param']
+                        ) {
+                            $link=$this->router->generate($relation['route'],[
+                                $relation['route_id_param']=>$entity->getId(),
+                            ]);
+                            $return.=' <a href="'.$link.'"><i class="glyphicon glyphicon-link"></i></a>';
+                        }
+                        return $return;
+                    }
+                }
+
+                return 'Unbekannte Relation '.$appField->getData();
                 break;
 
         }

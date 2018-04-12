@@ -2,7 +2,7 @@
 
 namespace Creavo\MultiAppBundle\Entity;
 
-use AppBundle\Entity\User;
+use Creavo\MultiAppBundle\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -43,9 +43,9 @@ class Activity {
     private $createdAt;
 
     /**
-     * @var User
+     * @var int
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\Column(name="created_by", type="integer", nullable=true)
      */
     private $createdBy;
 
@@ -71,10 +71,12 @@ class Activity {
     private $comment;
 
 
-    public function __construct(Item $item, $type, User $createdBy=null) {
+    public function __construct(Item $item, $type, UserInterface $createdBy=null) {
         $this->setItem($item);
         $this->setType($type);
-        $this->setCreatedBy($createdBy);
+        if($createdBy) {
+            $this->setCreatedBy($createdBy->getId());
+        }
         $this->setCreatedAt(new \DateTime('now'));
     }
 
@@ -91,10 +93,6 @@ class Activity {
     public function __toString() {
 
         $itemSingularName=$this->item->getApp()->getItemSingularName();
-        $user='Anonym';
-        if($this->createdBy) {
-            $user=$this->createdBy->__toString();
-        }
 
         if($this->getType()===self::TYPE_ITEM_CREATED) {
             return $itemSingularName.' wurde erstellt';
@@ -150,15 +148,6 @@ class Activity {
         return $this->item;
     }
 
-    public function setCreatedBy(\AppBundle\Entity\User $createdBy = null){
-        $this->createdBy = $createdBy;
-        return $this;
-    }
-
-    public function getCreatedBy(){
-        return $this->createdBy;
-    }
-
     public function setItemRevision(\Creavo\MultiAppBundle\Entity\ItemRevision $itemRevision = null){
         $this->itemRevision = $itemRevision;
         return $this;
@@ -175,5 +164,14 @@ class Activity {
 
     public function getComment(){
         return $this->comment;
+    }
+
+    public function setCreatedBy($createdBy){
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    public function getCreatedBy(){
+        return $this->createdBy;
     }
 }

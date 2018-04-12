@@ -247,6 +247,7 @@ class ItemController extends Controller {
 
         $form=$this->createForm(ItemType::class,$data,[
             'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
+            'em'=>$this->getDoctrine(),
         ]);
         $form->handleRequest($request);
 
@@ -444,11 +445,12 @@ class ItemController extends Controller {
             $counter++;
 
             if($counter<=10) {
+                $createdBy=$this->get('creavo_multi_app.helper.item_helper')->getUserById($activity->getCreatedBy());
                 $data['items'][]=[
                     'id'=>$activity->getId(),
                     'type'=>$activity->getType(),
                     'createdAt'=>$activity->getCreatedAt()->format('d.m.Y H:i:s'),
-                    'createdBy'=>$activity->getCreatedBy() ? $activity->getCreatedBy()->__toString() : 'anonym',
+                    'createdBy'=>$createdBy ? $createdBy->__toString() : 'anonym',
                     'message'=>$activity->__toString(),
                     'comment'=>$activity->getComment(),
                     'hasDetail'=>$activity->hasDetail(),

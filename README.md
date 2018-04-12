@@ -1,6 +1,6 @@
 # MultiAppBundle
 
-This bundle aims to create a light-wight platform to create lists/tables (here named apps) based on dynamically fields (like you can add a text-field to a table on the fly). In some functions its similar to podio.
+This bundle aims to create a light-wight platform to create lists/tables (here named apps) based on dynamically fields (like you can add a text-field to a table on the fly). In some functions its similar to podio. It also supports relations to other doctrine-entities you may already be using (see relations in config.xml).
 
 ## Status: alpha - do not use! :)
 
@@ -23,10 +23,20 @@ Add the following to your config.yml (add to doctrine-section):
                     JSON_CONTAINS: Creavo\MultiAppBundle\Doctrine\JsonContains
                     JSON_SEARCH: Creavo\MultiAppBundle\Doctrine\JsonSearch
                     
-Add the following later on in your config.yml:
+Add and edit the following to your needs later on in your config.yml:
 
     creavo_multi_app:
-        option: value
+        user_class: AppBundle\Entity\User # user-class - must implement Creavo\MultiAppBundle\Interfaces\UserInterface
+        relations: # relations to existing doctrine-entities (entity must implement Creavo\MultiAppBundle\Interfaces\AbstractEntityInterface)
+            -
+                name: User # name of entity - used in app-fields
+                class: AppBundle\Entity\User # class of the entity
+                route: user_detail # if a link to the entity is needed - this is the route
+                route_id_param: id # and this the id-key - thats equals path('user_detail',{'id': entityId}) in twig
+            -
+                name: Customer
+                class: AppBundle\Entity\Customer
+        
 
 Add the following to your routing.yml:
 

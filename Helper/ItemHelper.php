@@ -2,12 +2,12 @@
 
 namespace Creavo\MultiAppBundle\Helper;
 
-use AppBundle\Entity\User;
 use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Entity\Activity;
 use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Item;
 use Creavo\MultiAppBundle\Entity\ItemRevision;
+use Creavo\MultiAppBundle\Interfaces\UserInterface;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -18,8 +18,23 @@ class ItemHelper {
     /** @var \Doctrine\Common\Persistence\ObjectManager */
     protected $em;
 
-    public function __construct(Registry $registry) {
+    /** @var \Doctrine\Common\Persistence\ObjectRepository */
+    protected $userRepository;
+
+    /** @var array */
+    protected $relations;
+
+    public function __construct(Registry $registry, $userClass=null, array $relations=[]) {
         $this->em=$registry->getManager();
+
+        if($userClass) {
+            $this->userRepository=$this->em->getRepository($userClass);
+        }
+
+        foreach($relations AS $key=>$relation) {
+            $relations[$key]['repository']=$this->em->getRepository($relation['class']);
+        }
+        $this->relations=$relations;
     }
 
     /**
@@ -27,11 +42,11 @@ class ItemHelper {
      *
      * @param App $app
      * @param array $data
-     * @param User|null $user
+     * @param UserInterface|null $user
      * @param bool $flush
      * @return Item
      */
-    public function createItem(App $app, array $data, User $user=null, $flush=true) {
+    public function createItem(App $app, array $data, UserInterface $user=null, $flush=true) {
 
         $normalizer=new Normalizer($this->getAppFieldsFromApp($app));
         $data=$normalizer->transformDataToDatabase($data);
@@ -40,7 +55,7 @@ class ItemHelper {
         $item->setApp($app);
         $item->setItemId($this->em->getRepository('CreavoMultiAppBundle:Item')->getNextItemId($app));
         if($user) {
-            $item->setCreatedBy($user);
+            $item->setCreatedBy($user->getId());
         }
 
         $itemRevision=new ItemRevision();
@@ -48,7 +63,7 @@ class ItemHelper {
         $itemRevision->setItem($item);
         $itemRevision->setData($data);
         if($user) {
-            $itemRevision->setCreatedBy($user);
+            $itemRevision->setCreatedBy($user->getId());
         }
         $item->addItemRevision($itemRevision);
         $item->setCurrentRevision($itemRevision);
@@ -71,11 +86,11 @@ class ItemHelper {
      *
      * @param Item $item
      * @param array $data
-     * @param User|null $user
+     * @param UserInterface|null $user
      * @param bool $flush
      * @return Item
      */
-    public function updateItem(Item $item, array $data, User $user=null, $flush=true) {
+    public function updateItem(Item $item, array $data, UserInterface $user=null, $flush=true) {
 
         $normalizer=new Normalizer($this->getAppFieldsFromApp($item->getApp()));
         $data=$normalizer->transformDataToDatabase($data);
@@ -90,7 +105,9 @@ class ItemHelper {
 
         $itemRevision->setItem($item);
         $itemRevision->setRevision($this->em->getRepository('CreavoMultiAppBundle:ItemRevision')->getNextRevisionNumber($item));
-        $itemRevision->setCreatedBy($user);
+        if($user) {
+            $itemRevision->setCreatedBy($user->getId());
+        }
         $item->addItemRevision($itemRevision);
         $item->setCurrentRevision($itemRevision);
 
@@ -110,9 +127,9 @@ class ItemHelper {
      * hard-deletes / remove really an item
      *
      * @param Item $item
-     * @param User|null $user
+     * @param UserInterface|null $user
      */
-    public function hardDeleteItem(Item $item, User $user=null) {
+    public function hardDeleteItem(Item $item, UserInterface $user=null) {
 
         $item->setCurrentRevision(null);
 
@@ -129,10 +146,10 @@ class ItemHelper {
      * soft-deletes an item
      *
      * @param Item $item
-     * @param User|null $user
+     * @param UserInterface|null $user
      * @return Item
      */
-    public function softDeleteItem(Item $item, User $user=null) {
+    public function softDeleteItem(Item $item, UserInterface $user=null) {
 
         $item->setDeletedAt(new \DateTime('now'));
 
@@ -146,10 +163,10 @@ class ItemHelper {
      * restores an soft-deleted item
      *
      * @param Item $item
-     * @param User|null $user
+     * @param UserInterface|null $user
      * @return Item
      */
-    public function restoreItem(Item $item, User $user=null) {
+    public function restoreItem(Item $item, UserInterface $user=null) {
 
         $item->setDeletedAt(null);
 
@@ -216,6 +233,29 @@ class ItemHelper {
 
         $app->setFields(json_encode($data,true));
         return $app;
+    }
+
+    /**
+     * get user-entity by id
+     *
+     * @param $id
+     * @return null|UserInterface
+     */
+    public function getUserById($id) {
+
+        if($id===null) {
+            return null;
+        }
+
+        if(
+            $this->userRepository AND
+            $user=$this->userRepository->find($id) AND
+            $user instanceof UserInterface
+        ) {
+            return $user;
+        }
+
+        return null;
     }
 
 }

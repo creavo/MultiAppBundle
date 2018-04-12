@@ -8,15 +8,21 @@
         <service id="crv.ma.item" alias="creavo_multi_app.helper.item_helper"/>
 
         <service id="creavo_multi_app.helper.format_helper" class="Creavo\MultiAppBundle\Helper\FormatHelper">
+            <argument type="service" id="doctrine" />
+            <argument type="service" id="router" />
+            <argument></argument>
         </service>
 
         <service id="creavo_multi_app.helper.item_helper" class="Creavo\MultiAppBundle\Helper\ItemHelper">
             <argument type="service" id="doctrine"/>
+            <argument></argument>
+            <argument></argument>
         </service>
 
         <service id="creavo_multi_app.twig.multi_app_extension" class="Creavo\MultiAppBundle\Twig\MultiAppExtension">
             <tag name="twig.extension" />
             <argument type="service" id="creavo_multi_app.helper.format_helper" />
+            <argument type="service" id="creavo_multi_app.helper.item_helper" />
         </service>
     </services>
 </container>

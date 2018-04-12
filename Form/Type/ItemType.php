@@ -3,7 +3,11 @@
 namespace Creavo\MultiAppBundle\Form\Type;
 
 use Creavo\MultiAppBundle\Classes\AppField;
+use Creavo\MultiAppBundle\Interfaces\AbstractEntityInterface;
+use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -28,10 +32,14 @@ class ItemType extends AbstractType {
     /** @var FormBuilderInterface */
     protected $builder;
 
+    /** @var ObjectManager */
+    protected $em;
+
     public function buildForm(FormBuilderInterface $builder, array $options) {
 
         $data=$builder->getData();
         $this->appFields=$options['appFields'];
+        $this->em=$options['em'];
         $this->builder=$builder;
 
         /** @var AppField $appField */
@@ -73,11 +81,51 @@ class ItemType extends AbstractType {
                 case AppField::TYPE_BOOLEAN:
                     $this->buildBooleanForm($appField);
                     break;
+
+                case AppField::TYPE_RELATION:
+                    $this->buildRelationType($appField);
+                    break;
             }
 
 
         }
 
+    }
+
+    protected function buildRelationType(AppField $appField) {
+
+        $required=false;
+        $label=$appField->getName();
+        $constraints=[];
+
+        if($appField->getRequired()) {
+            $required=true;
+            $label.='*';
+            $constraints[]=new NotNull(['message'=>'Dieses Feld muss gefüllt werden.']);
+        }
+
+        $this->builder->add($appField->getSlug(),EntityType::class,[
+            'required'=>$required,
+            'class'=>$appField->getRelationClass(),
+            'label'=>$label,
+            'constraints'=>$constraints,
+            'attr'=>[
+                'help'=>$appField->getHelpText(),
+            ],
+        ]);
+
+        $this->builder->get($appField->getSlug())
+            ->addModelTransformer(new CallbackTransformer(
+                function($data) use ($appField) {
+                    if($data) {
+                        return $this->em->getRepository($appField->getRelationClass())->find($data);
+                    }
+                    return null;
+                },
+                function(AbstractEntityInterface $abstractEntity) {
+                    return $abstractEntity->getId();
+                }
+            ));
     }
 
     protected function buildDateTimeForm(AppField $appField) {
@@ -309,6 +357,8 @@ class ItemType extends AbstractType {
         $resolver->setDefaults([
             'appFields'=>[],
         ]);
+
+        $resolver->setRequired(['appFields','em']);
     }
 
 }

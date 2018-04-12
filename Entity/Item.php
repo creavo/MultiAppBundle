@@ -55,9 +55,9 @@ class Item
     private $createdAt;
 
     /**
-     * @var User
+     * @var int
      *
-     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
+     * @ORM\Column(name="created_by", type="integer", nullable=true)
      */
     private $createdBy;
 
@@ -132,15 +132,6 @@ class Item
         return $this;
     }
 
-    public function setCreatedBy(\AppBundle\Entity\User $createdBy = null){
-        $this->createdBy = $createdBy;
-        return $this;
-    }
-
-    public function getCreatedBy(){
-        return $this->createdBy;
-    }
-
     public function setCurrentRevision(\Creavo\MultiAppBundle\Entity\ItemRevision $currentRevision = null){
         $this->currentRevision = $currentRevision;
         return $this;
@@ -172,41 +163,25 @@ class Item
         return $this;
     }
 
-
-
-    /**
-     * Add activity.
-     *
-     * @param \Creavo\MultiAppBundle\Entity\Activity $activity
-     *
-     * @return Item
-     */
-    public function addActivity(\Creavo\MultiAppBundle\Entity\Activity $activity)
-    {
+    public function addActivity(\Creavo\MultiAppBundle\Entity\Activity $activity){
         $this->activities[] = $activity;
-
         return $this;
     }
 
-    /**
-     * Remove activity.
-     *
-     * @param \Creavo\MultiAppBundle\Entity\Activity $activity
-     *
-     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
-     */
-    public function removeActivity(\Creavo\MultiAppBundle\Entity\Activity $activity)
-    {
+    public function removeActivity(\Creavo\MultiAppBundle\Entity\Activity $activity){
         return $this->activities->removeElement($activity);
     }
 
-    /**
-     * Get activities.
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getActivities()
-    {
+    public function getActivities(){
         return $this->activities;
+    }
+
+    public function setCreatedBy($createdBy){
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    public function getCreatedBy(){
+        return $this->createdBy;
     }
 }
