@@ -129,6 +129,19 @@ class App
         return $this->getName();
     }
 
+    public static function getChoicesAsObjects() {
+        $data=[];
+
+        foreach(self::ICONS AS $code=>$id) {
+            $object=new \stdClass();
+            $object->id=$id;
+            $object->code=$code;
+            $data[$id]=$object;
+        }
+
+        return $data;
+    }
+
     public function getId(){
         return $this->id;
     }

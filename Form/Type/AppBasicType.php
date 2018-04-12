@@ -54,8 +54,11 @@ class AppBasicType extends AbstractType {
             'constraints'=>[
                 new NotNull(),
             ],
-            'choices'=>App::ICONS,
+            'choices'=>App::getChoicesAsObjects(),
             'expanded'=>true,
+            'choice_label'=>function($data) {
+                return '<i class="'.$data->code.'" style="font-size:28px;"></i>';
+            }
         ]);
 
     }
