@@ -1,0 +1,16 @@
+{% extends 'base_iframe.html.twig' %}
+
+{% block body %}
+    {% block crv_ma_header %}{% endblock %}
+    {% block crv_ma_body %}{% endblock %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% block crv_ma_stylesheets %}{% endblock %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% block crv_ma_javascripts %}{% endblock %}
+{% endblock %}
