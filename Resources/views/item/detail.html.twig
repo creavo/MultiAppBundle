@@ -124,7 +124,7 @@
                             html+='<em>'+row.message+'</em>';
                         }
                         if(row.hasDetail) {
-                            html+='&nbsp;<button class="btn btn-default btn-xs">Details</button>'
+                            html+='&nbsp;<button class="btn btn-default btn-xs crv_ma_open_modal" data-src="'+row.detailUrl+'">Details</button>'
                         }
                         if(row.comment) {
                             html+=row.comment;
@@ -157,6 +157,24 @@
                 $(this).tab('show');
                 $('#stream-list').html('');
                 loadDataStream();
+            });
+
+            $('body').on('click','.crv_ma_open_modal',function(e) {
+                e.preventDefault();
+
+                var src=$(this).data('src');
+                var height = $(this).data('height') || 450;
+                var width = $(this).data('width') || 650;
+                var title = $(this).data('modal-title') || $(this).data('title') || 'Modal';
+
+                $('#crv_ma_modal .modal-dialog').css({
+                    width: (width+32),
+                    height: (height+94)
+                });
+
+                $('#crv_ma_modal .modal-title').html(title);
+                $('#crv_ma_modal').modal();
+                $('#crv_ma_modal .modal-body').html('<iframe src="'+src+'" height="'+height+'" width="'+width+'" frameborder="0"></iframe>');
             });
         });
     </script>

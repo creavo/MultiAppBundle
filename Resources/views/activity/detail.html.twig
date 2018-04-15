@@ -1,0 +1,64 @@
+{% extends '@CreavoMultiApp/base_iframe.html.twig' %}
+
+{% block crv_ma_body %}
+
+    <div class="row">
+        <div class="col-xs-3 text-left">
+            {% if previousActivity %}
+                <a href="{{ path('crv_ma_item_activity_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.id, 'activityId': previousActivity.id}) }}" class="btn btn-default btn-xs btn-block">
+                    <i class="glyphicon glyphicon-arrow-left"></i> vorherige Aktivität
+                </a>
+            {% endif %}
+        </div>
+        <div class="col-xs-6 text-center">
+            {% if activity.createdBy %}
+                geändert von {{ activity.createdBy|crv_ma_user }}
+            {% endif %}
+        </div>
+        <div class="col-xs-3 text-right">
+            {% if nextActivity %}
+                <a href="{{ path('crv_ma_item_activity_detail',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'itemId': item.id, 'activityId': nextActivity.id}) }}" class="btn btn-default btn-xs btn-block">
+                    nächste Aktivität <i class="glyphicon glyphicon-arrow-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <p><br /></p>
+
+    {% if changes|length>0 %}
+        <table class="table table-condensed">
+            <tbody>
+                {% for change in changes %}
+                    <tr>
+                        <td colspan="3" class="info">
+                            <strong>Änderungen in <em>{{ change.name }}</em></strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:45%;">{{ change.first|crv_ma_format }}</td>
+                        <td style="width:10%;" class="text-center"><i class="glyphicon glyphicon-chevron-right"></i></td>
+                        <td style="width:45%;">{{ change.second|crv_ma_format }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+{% endblock %}
+
+{% block crv_ma_javascripts %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            changeModalTitle('Änderung {{ activity.id }} von {{ activity.createdAt|date('d.m.Y H:i:s') }}');
+
+            function changeModalTitle(title) {
+                $(window.parent.document).find('#crv_ma_modal .modal-title').html(title);
+            }
+        });
+    </script>
+{% endblock %}

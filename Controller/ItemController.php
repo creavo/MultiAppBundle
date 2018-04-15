@@ -10,6 +10,7 @@ use Creavo\MultiAppBundle\Entity\Workspace;
 use Creavo\MultiAppBundle\Form\Type\ActivityCommentType;
 use Creavo\MultiAppBundle\Form\Type\ItemType;
 use Creavo\MultiAppBundle\Helper\Normalizer;
+use Doctrine\Common\Persistence\ObjectManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -23,7 +24,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}", name="crv_ma_item_list")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param Request $request
@@ -41,7 +42,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}/ajax", name="crv_ma_item_list_ajax")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param Request $request
@@ -125,7 +126,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}/create-item", name="crv_ma_item_create")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param Request $request
@@ -175,7 +176,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}/{itemId}/detail", name="crv_ma_item_detail")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param $itemId
@@ -225,7 +226,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}/{itemId}/edit", name="crv_ma_item_edit")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param $itemId
@@ -292,7 +293,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}/{itemId}/delete", name="crv_ma_item_delete")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param $itemId
@@ -345,7 +346,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}/{itemId}/restore", name="crv_ma_item_restore")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param $itemId
@@ -399,7 +400,7 @@ class ItemController extends Controller {
     /**
      * @Route("/{workspaceSlug}/{appSlug}/{itemId}/activity-ajax", name="crv_ma_item_activity_ajax")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
-     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
      * @param Workspace $workspace
      * @param App $app
      * @param $itemId
@@ -454,6 +455,12 @@ class ItemController extends Controller {
                     'message'=>$activity->__toString(),
                     'comment'=>$activity->getComment(),
                     'hasDetail'=>$activity->hasDetail(),
+                    'detailUrl'=>$this->generateUrl('crv_ma_item_activity_detail',[
+                        'workspaceSlug'=>$workspace->getSlug(),
+                        'appSlug'=>$app->getSlug(),
+                        'itemId'=>$itemId,
+                        'activityId'=>$activity->getId(),
+                    ])
                 ];
                 continue;
             }
@@ -462,6 +469,48 @@ class ItemController extends Controller {
         }
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/{itemId}/activity/{activityId}/detail", name="crv_ma_item_activity_detail")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug", "workspace": "workspace"}})
+     * @ParamConverter("activity", options={"mapping": {"activityId": "id"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param $itemId
+     * @param Activity $activity
+     * @throws \Exception
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function itemActivityDetailAction(Workspace $workspace, App $app, $itemId, Activity $activity) {
+
+        /** @var ObjectManager $em */
+        $em=$this->getDoctrine()->getManager();
+
+        /** @var Item $item */
+        $item=$em->getRepository('CreavoMultiAppBundle:Item')->getByAppAndItemId($app,$itemId);
+
+        if($activity->getItem()!==$item) {
+            throw $this->createNotFoundException('activity does not match item');
+        }
+
+        $currentItemRevision=$activity->getItemRevision();
+        $lastItemRevision=$em->getRepository('CreavoMultiAppBundle:ItemRevision')->getPreviousRevision($currentItemRevision);
+
+        $changes=$this->get('creavo_multi_app.helper.item_helper')->generateDiffFromItemRevisions($lastItemRevision,$currentItemRevision);
+
+        return $this->render('@CreavoMultiApp/activity/detail.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+            'activity'=>$activity,
+            'item'=>$item,
+            'previousActivity'=>$em->getRepository('CreavoMultiAppBundle:Activity')->getPreviousActivity($activity,Activity::TYPE_ITEM_CHANGES),
+            'nextActivity'=>$em->getRepository('CreavoMultiAppBundle:Activity')->getNextActivity($activity,Activity::TYPE_ITEM_CHANGES),
+            'currentItemRevision'=>$currentItemRevision,
+            'lastItemRevision'=>$lastItemRevision,
+            'changes'=>$changes,
+        ]);
     }
 
 }

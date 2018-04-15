@@ -2,6 +2,7 @@
 
 namespace Creavo\MultiAppBundle\Form\Type;
 
+use Creavo\MultiAppBundle\Classes\AppIcon;
 use Creavo\MultiAppBundle\Entity\App;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -54,10 +55,10 @@ class AppBasicType extends AbstractType {
             'constraints'=>[
                 new NotNull(),
             ],
-            'choices'=>App::getChoicesAsObjects(),
+            'choices'=>AppIcon::getChoicesAsObjects(),
             'expanded'=>true,
-            'choice_label'=>function($data) {
-                return '<i class="'.$data->code.'" style="font-size:28px;"></i>';
+            'choice_label'=>function(AppIcon $appIcon) {
+                return '<i class="'.$appIcon->getCode().'" style="font-size:28px;"></i>';
             }
         ]);
 

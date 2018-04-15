@@ -3,6 +3,7 @@
 namespace Creavo\MultiAppBundle\Repository;
 
 use Creavo\MultiAppBundle\Entity\Item;
+use Creavo\MultiAppBundle\Entity\ItemRevision;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\AbstractQuery;
 
@@ -73,6 +74,38 @@ class ItemRevisionRepository extends \Doctrine\ORM\EntityRepository {
 
             $qb->getQuery()->execute();
         }
+    }
+
+    public function getPreviousRevision(ItemRevision $itemRevision) {
+
+        /** @var QueryBuilder $qb */
+        $qb=$this->createQueryBuilder('ir');
+
+        $qb
+            ->andWhere('ir.item = :item')
+            ->setParameter('item',$itemRevision->getItem())
+            ->andWhere('ir.revision < :revision')
+            ->setParameter('revision',$itemRevision->getRevision())
+            ->setMaxResults(1)
+            ->addOrderBy('ir.revision','desc');
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function getNextRevision(ItemRevision $itemRevision) {
+
+        /** @var QueryBuilder $qb */
+        $qb=$this->createQueryBuilder('ir');
+
+        $qb
+            ->andWhere('ir.item = :item')
+            ->setParameter('item',$itemRevision->getItem())
+            ->andWhere('ir.revision > :revision')
+            ->setParameter('revision',$itemRevision->getRevision())
+            ->setMaxResults(1)
+            ->addOrderBy('ir.revision','asc');
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
 }

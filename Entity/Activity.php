@@ -2,7 +2,7 @@
 
 namespace Creavo\MultiAppBundle\Entity;
 
-use Creavo\MultiAppBundle\UserInterface;
+use Creavo\MultiAppBundle\Interfaces\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -18,6 +18,13 @@ class Activity {
     const TYPE_ITEM_DELETED=3;
     const TYPE_COMMENT=4;
     const TYPE_ITEM_RESTORED=5;
+
+    const TYPE_ITEM_CHANGES=[
+        self::TYPE_ITEM_CREATED,
+        self::TYPE_ITEM_UPDATED,
+        self::TYPE_ITEM_DELETED,
+        self::TYPE_ITEM_RESTORED,
+    ];
 
     /**
      * @var int
@@ -81,9 +88,7 @@ class Activity {
     }
 
     public function hasDetail() {
-        if(in_array($this->getType(),[
-            self::TYPE_ITEM_UPDATED,
-        ],false)) {
+        if($this->getItemRevision()) {
             return true;
         }
 

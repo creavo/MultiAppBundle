@@ -195,14 +195,17 @@ class ItemHelper {
         $normalizer=new Normalizer($this->getAppFieldsFromApp($item->getApp()));
         $data=$normalizer->transformDataToPhp($data);
 
+        $return=[];
+
         /** @var AppField $field */
-        foreach($fields AS $field) {
+        foreach($fields AS $key=>$field) {
+            $return[$field->getSlug()]=$field;
             if(isset($data[$field->getSlug()])) {
                 $field->setData($data[$field->getSlug()]);
             }
         }
 
-        return $fields;
+        return $return;
     }
 
     public function getAppFieldsFromApp(App $app) {
@@ -256,6 +259,42 @@ class ItemHelper {
         }
 
         return null;
+    }
+
+    public function generateDiffFromItemRevisions(ItemRevision $first, ItemRevision $second) {
+
+        if($first->getItem()!==$second->getItem()) {
+            throw new \Exception('item-revisions must be from the same item to compare them');
+        }
+
+        $changes=[];
+        $firstAppFields=$this->getItemRow($first->getItem(),$first);
+        $secondAppFields=$this->getItemRow($first->getItem(),$second);
+
+        /** @var AppField $appField */
+        foreach($firstAppFields AS $slug=>$appField) {
+            if(!isset($secondAppFields[$slug])) {
+                $changes[$slug]=[
+                    'name'=>$appField->getName(),
+                    'first'=>null,
+                    'second'=>$appField,
+                ];
+                continue;
+            }
+
+            /** @var AppField $secondAppField */
+            $secondAppField=$secondAppFields[$slug];
+
+            if($appField->getData()!==$secondAppField->getData()) {
+                $changes[$slug]=[
+                    'name'=>$appField->getName(),
+                    'first'=>$appField,
+                    'second'=>$secondAppField,
+                ];
+            }
+        }
+
+        return $changes;
     }
 
 }

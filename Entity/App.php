@@ -2,6 +2,7 @@
 
 namespace Creavo\MultiAppBundle\Entity;
 
+use Creavo\MultiAppBundle\Classes\AppIcon;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,24 +14,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class App
 {
-
-    const ICONS=[
-        'glyphicon glyphicon-asterisk'=>1,
-        'glyphicon glyphicon-cloud'=>2,
-        'glyphicon glyphicon-envelope'=>3,
-        'glyphicon glyphicon-music'=>4,
-        'glyphicon glyphicon-heart'=>5,
-        'glyphicon glyphicon-star'=>6,
-        'glyphicon glyphicon-user'=>7,
-        'glyphicon glyphicon-film'=>8,
-        'glyphicon glyphicon-cog'=>9,
-        'glyphicon glyphicon-road'=>10,
-        'glyphicon glyphicon-time'=>11,
-        'glyphicon glyphicon-stats'=>12,
-        'glyphicon glyphicon-king'=>13,
-        'glyphicon glyphicon-lamp'=>14,
-        'glyphicon glyphicon-piggy-bank'=>15,
-    ];
 
     /**
      * @var int
@@ -127,19 +110,6 @@ class App
 
     public function __toString() {
         return $this->getName();
-    }
-
-    public static function getChoicesAsObjects() {
-        $data=[];
-
-        foreach(self::ICONS AS $code=>$id) {
-            $object=new \stdClass();
-            $object->id=$id;
-            $object->code=$code;
-            $data[$id]=$object;
-        }
-
-        return $data;
     }
 
     public function getId(){
