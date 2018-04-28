@@ -47,9 +47,9 @@ class FilterHelper {
         foreach($app->getAppFieldsFromApp() AS $appField) {
 
             if($appField->getType()===AppField::TYPE_STRING) {
-                //$filter=new ContainsFilter($appField,'e');
-                $filter=new StartsWithFilter($appField,'a');
-                //$data[]=$filter;
+                $filter=new ContainsFilter($appField,'e');
+                //$filter=new StartsWithFilter($appField,'a');
+                $data[]=$filter;
                 break;
             }
 

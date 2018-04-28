@@ -36,13 +36,11 @@ class ItemController extends Controller {
         /** @var FilterHelper $filterHelper */
         $filterHelper=$this->get('creavo_multi_app.helper.filter_helper');
 
-        $filterTexts=$filterHelper->getFilterTexts($app,$request);
-
         return $this->render('CreavoMultiAppBundle:item:list.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
             'appFields'=>$app->getAppFieldsFromApp(),
-            'filterTexts'=>$filterTexts,
+            'filterTexts'=>$filterHelper->getFilterTexts($app,$request),
         ]);
     }
 
@@ -67,7 +65,6 @@ class ItemController extends Controller {
             'recordsTotal'=>0,
             'recordsFiltered'=>0,
             'data'=>[],
-            'filterTexts'=>'',
         ];
 
         $qb=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getQueryBuilderByApp($app);
@@ -91,10 +88,7 @@ class ItemController extends Controller {
 
         /** @var FilterHelper $filterHelper */
         $filterHelper=$this->get('creavo_multi_app.helper.filter_helper');
-
-        $filterTexts=$filterHelper->getFilterTexts($app,$request);
         $filterHelper->modifyQueryBuilder($app,$request,$qb);
-        $data['filterTexts']=implode(', ',$filterTexts);
 
         $data['recordsFiltered']=(clone $qb)->select('COUNT(i)')->getQuery()->getSingleScalarResult();
 
