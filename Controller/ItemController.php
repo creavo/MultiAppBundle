@@ -144,6 +144,7 @@ class ItemController extends Controller {
 
         $form=$this->createForm(ItemType::class,[],[
             'appFields'=>$app->getAppFieldsFromApp(),
+            'em'=>$this->getDoctrine(),
         ]);
         $form->handleRequest($request);
 

@@ -5,6 +5,7 @@ namespace Creavo\MultiAppBundle\Controller;
 use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Workspace;
 use Creavo\MultiAppBundle\Form\Type\AppBasicType;
+use Creavo\MultiAppBundle\Helper\FilterHelper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -87,6 +88,33 @@ class AppController extends Controller {
         return $this->render('@CreavoMultiApp/app/edit_fields.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
+        ]);
+    }
+
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/modal-filters", name="crv_ma_app_modal_filters")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function modalFilterAction(Workspace $workspace, App $app, Request $request) {
+
+        /** @var FilterHelper $filterHelper */
+        $filterHelper=$this->get('creavo_multi_app.helper.filter_helper');
+
+        if($request->query->getInt('removeFilter',-1)>=0) {
+            $removeFilter=$request->query->getInt('removeFilter',-1);
+            dump($removeFilter);
+            $filterHelper->removeFilter($app,$request,$removeFilter);
+        }
+
+        return $this->render('@CreavoMultiApp/app/modal_filters.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+            'filterObjects'=>$filterHelper->getFilterObjects($app,$request),
         ]);
     }
 

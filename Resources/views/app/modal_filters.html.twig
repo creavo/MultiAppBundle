@@ -1,0 +1,116 @@
+{% extends '@CreavoMultiApp/base_iframe.html.twig' %}
+
+{% block crv_ma_body %}
+
+        <div class="row" style="margin-right:0;">
+            <div class="col-xs-4">
+
+                <ul class="nav nav-tabs tabs-left">
+                    <li class="active">
+                        <a href="#active_filters" data-toggle="tab">
+                            Aktive Filter
+                            {% if filterObjects|length>0 %}
+                                <span class="badge">{{ filterObjects|length }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+
+            <div class="col-xs-8">
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="active_filters">
+                        <h4>Aktive Filter</h4>
+
+                        <div class="tags">
+                            {% for key, filterObject in filterObjects %}
+                                <span>
+                                    {{ filterObject.toText }}
+                                    <a href="{{ path('crv_ma_app_modal_filters',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'removeFilter': key}) }}">
+                                        <i class="glyphicon glyphicon-remove"></i>
+                                    </a>
+                                </span>
+                            {% endfor %}
+                        </div>
+
+                        {{ dump() }}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+{% endblock %}
+
+{% block crv_ma_javascripts %}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var height=$(window.parent.document).find('#crv_ma_modal iframe').height()-20;
+            $('.col-xs-4, .col-xs-8').css({'height': height+'px','overflow': 'auto'});
+            console.log(height);
+        });
+    </script>
+
+{% endblock %}
+
+{% block crv_ma_stylesheets %}
+
+    <style type="text/css">
+        /* https://bootsnipp.com/snippets/nP8E7 */
+        .tabs-left, .tabs-right {
+            border-bottom: none;
+            padding-top: 2px;
+        }
+        .tabs-left {
+            border-right: 1px solid #ddd;
+        }
+        .tabs-right {
+            border-left: 1px solid #ddd;
+        }
+        .tabs-left>li, .tabs-right>li {
+            float: none;
+            margin-bottom: 2px;
+        }
+        .tabs-left>li {
+            margin-right: -1px;
+        }
+        .tabs-right>li {
+            margin-left: -1px;
+        }
+        .tabs-left>li.active>a,
+        .tabs-left>li.active>a:hover,
+        .tabs-left>li.active>a:focus {
+            border-bottom-color: #ddd;
+            border-right-color: transparent;
+        }
+
+        .tabs-right>li.active>a,
+        .tabs-right>li.active>a:hover,
+        .tabs-right>li.active>a:focus {
+            border-bottom: 1px solid #ddd;
+            border-left-color: transparent;
+        }
+        .tabs-left>li>a {
+            border-radius: 4px 0 0 4px;
+            margin-right: 0;
+            display:block;
+        }
+        .tabs-right>li>a {
+            border-radius: 0 4px 4px 0;
+            margin-right: 0;
+        }
+
+        /* https://bootsnipp.com/snippets/xAKG */
+        .tags span{border:1px solid #DDD;display:inline-block;color:#717171;background:#FFF;-webkit-box-shadow:0 1px 1px 0 rgba(180,180,180,0.1);box-shadow:0 1px 1px 0 rgba(180,180,180,0.1);-webkit-transition:all .1s ease-in-out;-moz-transition:all .1s ease-in-out;-o-transition:all .1s ease-in-out;-ms-transition:all .1s ease-in-out;transition:all .1s ease-in-out;border-radius:2px;margin:0 3px 6px 0;padding:5px 10px}
+        .tags span:hover{border-color:#08C;}
+        .tags .primary{color:#FFF;background-color:#428BCA;border-color:#357EBD}
+        .tags .success{color:#FFF;background-color:#5CB85C;border-color:#4CAE4C}
+        .tags .info{color:#FFF;background-color:#5BC0DE;border-color:#46B8DA}
+        .tags .warning{color:#FFF;background-color:#F0AD4E;border-color:#EEA236}
+        .tags .danger{color:#FFF;background-color:#D9534F;border-color:#D43F3A}
+    </style>
+
+{% endblock %}

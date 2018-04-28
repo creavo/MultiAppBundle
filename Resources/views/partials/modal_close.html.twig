@@ -1,0 +1,79 @@
+{% extends '@CreavoMultiApp/base_iframe.html.twig' %}
+
+{% block crv_ma_body %}
+
+    <p><br /><br /></p>
+
+    <p class="text-center">
+        <i class="glyphicon glyphicon-refresh gly-spin" style="font-size:30px;"></i>
+    </p>
+
+    <p class="text-center lead">
+        Einen Moment bitte...
+    </p>
+
+{% endblock %}
+
+{% block crv_ma_javascripts %}
+    <script type="text/javascript">
+
+        function reloadParent() {
+            {% if redirectUrl is defined %}
+            parent.location.href="{{ redirectUrl }}";
+            {% else %}
+            parent.location.href=parent.location.href;
+            {% endif %}
+        }
+
+        window.setTimeout(reloadParent,100);
+
+    </script>
+{% endblock %}
+
+{% block crv_ma_stylesheets %}
+
+    <style type="text/css">
+        .gly-spin {
+            -webkit-animation: spin 2s infinite linear;
+            -moz-animation: spin 2s infinite linear;
+            -o-animation: spin 2s infinite linear;
+            animation: spin 2s infinite linear;
+        }
+        @-moz-keyframes spin {
+            0% {
+                -moz-transform: rotate(0deg);
+            }
+            100% {
+                -moz-transform: rotate(359deg);
+            }
+        }
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+            }
+        }
+        @-o-keyframes spin {
+            0% {
+                -o-transform: rotate(0deg);
+            }
+            100% {
+                -o-transform: rotate(359deg);
+            }
+        }
+        @keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(359deg);
+                transform: rotate(359deg);
+            }
+        }
+
+    </style>
+
+{% endblock %}

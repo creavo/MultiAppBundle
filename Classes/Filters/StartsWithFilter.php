@@ -15,6 +15,8 @@ class StartsWithFilter extends AbstractFilter implements FilterInterface {
     public function getTypes() {
         return [
             AppField::TYPE_STRING,
+            AppField::TYPE_URL,
+            AppField::TYPE_EMAIL,
         ];
     }
 

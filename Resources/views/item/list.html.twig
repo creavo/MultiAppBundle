@@ -10,27 +10,36 @@
 
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
-    <p class="text-right">
-        <a href="{{ path('crv_ma_item_create',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-primary">
-            <i class="glyphicon glyphicon-plus"></i> {{ appEntity.itemSingularName }} erstellen
-        </a>
-        <a href="{{ path('crv_ma_app_edit_basics',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-default">
-            <i class="glyphicon glyphicon-pencil"></i> App bearbeiten
-        </a>
-    </p>
+    <div class="row">
+        <div class="col-sm-9">
+            <div class="well well-sm">
+                <button class="btn btn-default btn-sm pull-right crv_ma_open_modal" data-src="{{ path('crv_ma_app_modal_filters',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" data-title="Filter bearbeiten" data-footer-btn="reload">
+                    Filter bearbeiten
+                </button>
+                <p><strong>Filter</strong></p>
+                {% if filterTexts|length>0 %}
+                    <ul class="list-inline">
+                        {% for filterText in filterTexts %}
+                            <li>{{ filterText }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    Keine Filter gesetzt.
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-3 text-right">
+            <a href="{{ path('crv_ma_item_create',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-primary">
+                <i class="glyphicon glyphicon-plus"></i> {{ appEntity.itemSingularName }}
+            </a>
+            <a href="{{ path('crv_ma_app_edit_basics',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}" class="btn btn-default">
+                <i class="glyphicon glyphicon-pencil"></i> App bearbeiten
+            </a>
+        </div>
+    </div>
 
     <p><br /></p>
 
-    {% if filterTexts|length>0 %}
-        <div class="well well-sm">
-            <strong>Filter</strong>
-            <ul class="list-inline">
-                {% for filterText in filterTexts %}
-                    <li>{{ filterText }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
 
     {% if appFields|length>0 %}
         <table class="table table-striped" id="table">
@@ -109,6 +118,33 @@
 
             $('body').on('click','#table tbody tr', function() {
                 window.location=$(this).data('link');
+            });
+
+            $('body').on('click','.crv_ma_open_modal',function(e) {
+                e.preventDefault();
+
+                var src=$(this).data('src');
+                var height = $(this).data('height') || 450;
+                var width = $(this).data('width') || 650;
+                var title = $(this).data('modal-title') || $(this).data('title') || 'Modal';
+                var footerBtn = $(this).data('footer-btn') || 'close';
+
+                $('#crv_ma_modal .modal-dialog').css({
+                    width: (width+32),
+                    height: (height+94)
+                });
+
+                $('#crv_ma_modal .modal-title').html(title);
+                if(footerBtn==='reload') {
+                    console.log('test');
+                    $('#crv_ma_modal .modal-footer button')
+                        .removeAttr('data-dismiss')
+                        .on('click',function() {
+                            parent.location.href=parent.location.href;
+                        });
+                }
+                $('#crv_ma_modal').modal();
+                $('#crv_ma_modal .modal-body').html('<iframe src="'+src+'" height="'+height+'" width="'+width+'" frameborder="0"></iframe>');
             });
         });
     </script>

@@ -6,17 +6,17 @@ use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Interfaces\FilterInterface;
 use Doctrine\ORM\QueryBuilder;
 
-class ContainsFilter extends AbstractFilter implements FilterInterface {
+class LessThanEqualFilter extends AbstractFilter implements FilterInterface {
 
     public function getName() {
-        return 'contains';
+        return 'less_than_equal';
     }
 
     public function getTypes() {
         return [
-            AppField::TYPE_STRING,
-            AppField::TYPE_URL,
-            AppField::TYPE_EMAIL,
+            AppField::TYPE_NUMBER,
+            AppField::TYPE_MONEY,
+            AppField::TYPE_PROGRESS,
         ];
     }
 
@@ -24,12 +24,12 @@ class ContainsFilter extends AbstractFilter implements FilterInterface {
 
         $filterName=$this->getParameterName($this->getFieldSlug());
         $qb
-            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(ir.data,'$.".$this->getFieldSlug()."')) LIKE :".$filterName)
+            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(ir.data,'$.".$this->getFieldSlug()."')) <= :".$filterName)
             ->setParameter($filterName,'%'.$this->getValue().'%');
     }
 
     public function toText() {
-        return $this->getAppField()->getName().' enthält "'.$this->getValue().'"';
+        return $this->getAppField()->getName().' kleiner/gleich als "'.$this->getValue().'"';
     }
 
 }

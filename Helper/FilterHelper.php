@@ -10,6 +10,10 @@ use Creavo\MultiAppBundle\Interfaces\FilterInterface;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class FilterHelper {
 
@@ -31,6 +35,10 @@ class FilterHelper {
         return $texts;
     }
 
+    public function getFilterObjects(App $app, Request $request) {
+        return $this->getFilters($app,$request);
+    }
+
     public function modifyQueryBuilder(App $app, Request $request, QueryBuilder $queryBuilder) {
 
         /** @var FilterInterface $filter */
@@ -43,19 +51,81 @@ class FilterHelper {
     protected function getFilters(App $app, Request $request) {
         $data=[];
 
-        /** @var AppField $appField */
-        foreach($app->getAppFieldsFromApp() AS $appField) {
+        $sessionData=$this->getSessionData($app,$request);
+        $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
 
-            if($appField->getType()===AppField::TYPE_STRING) {
-                $filter=new ContainsFilter($appField,'e');
-                //$filter=new StartsWithFilter($appField,'a');
-                $data[]=$filter;
-                break;
-            }
+        $filter=new ContainsFilter($app->getAppFieldsFromApp()[0],'e');
 
+        $save=[
+            'filters'=>[
+                [
+                    'data'=>$serializer->serialize($filter,'json'),
+                    'class'=>ContainsFilter::class,
+                ]
+            ]
+        ];
+        //dump($save);
+        //$this->setSessionData($app,$request,$save);
+
+        foreach((array)$sessionData['filters'] AS $key=>$filter) {
+            $data[$key]=$serializer->deserialize($filter['data'],$filter['class'],'json');
         }
 
         return $data;
     }
 
+    public function removeFilter(App $app, Request $request, $filterKey) {
+        $sessionData=$this->getSessionData($app,$request);
+        if(isset($sessionData['filters'][$filterKey])) {
+            unset($sessionData['filters'][$filterKey]);
+        }
+        $this->setSessionData($app,$request,$sessionData);
+    }
+
+    protected function getSessionData(App $app, Request $request) {
+
+        /** @var SessionInterface $session */
+        if($session=$request->getSession()) {
+
+            if(!$session->has('crv_ma_item_filters')) {
+                $session->set('crv_ma_item_filters',[]);
+            }
+
+            $slug=$app->getWorkspace()->getSlug().'_'.$app->getSlug();
+
+            $sessionData=$session->get('crv_ma_item_filters');
+
+            if(!isset($sessionData[$slug])) {
+                $sessionData[$slug]=[
+                    'filters'=>[],
+                ];
+                $session->set('crv_ma_item_filters',$sessionData);
+            }
+
+            return $sessionData[$slug];
+        }
+
+        return null;
+    }
+
+    protected function setSessionData(App $app, Request $request, array $data) {
+
+        /** @var SessionInterface $session */
+        if($session=$request->getSession()) {
+
+            if(!$session->has('crv_ma_item_filters')) {
+                $session->set('crv_ma_item_filters',[]);
+            }
+
+            $slug=$app->getWorkspace()->getSlug().'_'.$app->getSlug();
+
+            $sessionData=$session->get('crv_ma_item_filters');
+            $sessionData[$slug]=$data;
+            $session->set('crv_ma_item_filters',$sessionData);
+
+            return $sessionData[$slug];
+        }
+
+        return null;
+    }
 }
