@@ -21,6 +21,17 @@
 
     <p><br /></p>
 
+    {% if filterTexts|length>0 %}
+        <div class="well well-sm">
+            <strong>Filter</strong>
+            <ul class="list-inline">
+                {% for filterText in filterTexts %}
+                    <li>{{ filterText }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
     {% if appFields|length>0 %}
         <table class="table table-striped" id="table">
             <thead>

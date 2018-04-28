@@ -32,7 +32,7 @@ class AppIcon {
     }
 
     public function __toString() {
-        return ''.$this->getId();
+        return ''.$this->getCode();
     }
 
     public static function getChoicesAsObjects() {
@@ -43,6 +43,13 @@ class AppIcon {
         }
 
         return $data;
+    }
+
+    public static function createById($id) {
+        if($code=\array_search($id,self::ICONS,false)) {
+            return new self($id,$code);
+        }
+        return null;
     }
 
     public function getId(){

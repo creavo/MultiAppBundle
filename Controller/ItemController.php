@@ -9,6 +9,7 @@ use Creavo\MultiAppBundle\Entity\Item;
 use Creavo\MultiAppBundle\Entity\Workspace;
 use Creavo\MultiAppBundle\Form\Type\ActivityCommentType;
 use Creavo\MultiAppBundle\Form\Type\ItemType;
+use Creavo\MultiAppBundle\Helper\FilterHelper;
 use Creavo\MultiAppBundle\Helper\Normalizer;
 use Doctrine\Common\Persistence\ObjectManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -32,10 +33,16 @@ class ItemController extends Controller {
      */
     public function listItemsAction(Workspace $workspace, App $app, Request $request) {
 
+        /** @var FilterHelper $filterHelper */
+        $filterHelper=$this->get('creavo_multi_app.helper.filter_helper');
+
+        $filterTexts=$filterHelper->getFilterTexts($app,$request);
+
         return $this->render('CreavoMultiAppBundle:item:list.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
-            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
+            'appFields'=>$app->getAppFieldsFromApp(),
+            'filterTexts'=>$filterTexts,
         ]);
     }
 
@@ -47,7 +54,6 @@ class ItemController extends Controller {
      * @param App $app
      * @param Request $request
      * @return JsonResponse
-     * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function listItemsAjaxAction(Workspace $workspace, App $app, Request $request) {
@@ -61,6 +67,7 @@ class ItemController extends Controller {
             'recordsTotal'=>0,
             'recordsFiltered'=>0,
             'data'=>[],
+            'filterTexts'=>'',
         ];
 
         $qb=$this->getDoctrine()->getRepository('CreavoMultiAppBundle:Item')->getQueryBuilderByApp($app);
@@ -82,6 +89,13 @@ class ItemController extends Controller {
             }
         }
 
+        /** @var FilterHelper $filterHelper */
+        $filterHelper=$this->get('creavo_multi_app.helper.filter_helper');
+
+        $filterTexts=$filterHelper->getFilterTexts($app,$request);
+        $filterHelper->modifyQueryBuilder($app,$request,$qb);
+        $data['filterTexts']=implode(', ',$filterTexts);
+
         $data['recordsFiltered']=(clone $qb)->select('COUNT(i)')->getQuery()->getSingleScalarResult();
 
         $qb
@@ -96,13 +110,13 @@ class ItemController extends Controller {
             in_array($dir,['asc','desc'],false)
         ) {
             $slug=$columns[$order[0]['column']]['name'];
-            $qb->addOrderBy("JSON_EXTRACT(ir.data,'$.".$slug."')",$dir);
+            $qb->addOrderBy("JSON_UNQUOTE(JSON_EXTRACT(ir.data,'$.".$slug."'))",$dir);
         }
 
         $items=$qb->getQuery()->getResult();
 
         /** @var Item $item */
-        foreach($items AS $item) {
+        foreach((array)$items AS $item) {
 
             /** @var AppField $appField */
             foreach($this->get('creavo_multi_app.helper.item_helper')->getItemRow($item) AS $appField) {
@@ -135,7 +149,7 @@ class ItemController extends Controller {
     public function itemCreateAction(Workspace $workspace, App $app, Request $request) {
 
         $form=$this->createForm(ItemType::class,[],[
-            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
+            'appFields'=>$app->getAppFieldsFromApp(),
         ]);
         $form->handleRequest($request);
 
@@ -243,11 +257,11 @@ class ItemController extends Controller {
             throw $this->createNotFoundException('item is deleted');
         }
 
-        $normalizer=new Normalizer($this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($item->getApp()));
+        $normalizer=new Normalizer($item->getApp()->getAppFieldsFromApp());
         $data=$normalizer->transformDataToPhp($itemRevision->getData());
 
         $form=$this->createForm(ItemType::class,$data,[
-            'appFields'=>$this->get('creavo_multi_app.helper.item_helper')->getAppFieldsFromApp($app),
+            'appFields'=>$app->getAppFieldsFromApp(),
             'em'=>$this->getDoctrine(),
         ]);
         $form->handleRequest($request);
@@ -271,7 +285,6 @@ class ItemController extends Controller {
                     'appSlug'=>$app->getSlug(),
                 ]);
             }
-
 
             return $this->redirectToRoute('crv_ma_item_detail',[
                 'workspaceSlug'=>$workspace->getSlug(),

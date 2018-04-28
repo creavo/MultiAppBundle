@@ -48,7 +48,7 @@ class ItemHelper {
      */
     public function createItem(App $app, array $data, UserInterface $user=null, $flush=true) {
 
-        $normalizer=new Normalizer($this->getAppFieldsFromApp($app));
+        $normalizer=new Normalizer($app->getAppFieldsFromApp());
         $data=$normalizer->transformDataToDatabase($data);
 
         $item=new Item();
@@ -92,7 +92,7 @@ class ItemHelper {
      */
     public function updateItem(Item $item, array $data, UserInterface $user=null, $flush=true) {
 
-        $normalizer=new Normalizer($this->getAppFieldsFromApp($item->getApp()));
+        $normalizer=new Normalizer($item->getApp()->getAppFieldsFromApp());
         $data=$normalizer->transformDataToDatabase($data);
 
         $itemRevision=new ItemRevision();
@@ -185,14 +185,14 @@ class ItemHelper {
      */
     public function getItemRow(Item $item, ItemRevision $itemRevision=null) {
 
-        $fields=$this->getAppFieldsFromApp($item->getApp());
+        $fields=$item->getApp()->getAppFieldsFromApp();
         $data=$item->getCurrentRevision()->getData();
 
         if($itemRevision) {
             $data=$itemRevision->getData();
         }
 
-        $normalizer=new Normalizer($this->getAppFieldsFromApp($item->getApp()));
+        $normalizer=new Normalizer($item->getApp()->getAppFieldsFromApp());
         $data=$normalizer->transformDataToPhp($data);
 
         $return=[];
@@ -206,36 +206,6 @@ class ItemHelper {
         }
 
         return $return;
-    }
-
-    public function getAppFieldsFromApp(App $app) {
-
-        $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
-        $fields=json_decode($app->getFields(),true);
-
-        if($fields===null) {
-            return [];
-        }
-
-        $data=[];
-        foreach($fields AS $field) {
-            $data[]=$serializer->deserialize(json_encode($field),AppField::class,'json');
-        }
-
-        return $data;
-    }
-
-    public function setAppFieldsForApp(App $app, array $fields) {
-
-        $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
-
-        $data=[];
-        foreach($fields AS $field) {
-            $data[]=json_decode($serializer->serialize($field,'json'));
-        }
-
-        $app->setFields(json_encode($data,true));
-        return $app;
     }
 
     /**

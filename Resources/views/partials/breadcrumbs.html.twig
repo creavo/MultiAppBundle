@@ -14,7 +14,7 @@
     %}
         <li>
             <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
-                {{ appEntity.name }}
+                <i class="{{ appEntity.iconClass|default('glyphicon glyphicon-briefcase') }}"></i> {{ appEntity.name }}
             </a>
         </li>
     {% endif %}

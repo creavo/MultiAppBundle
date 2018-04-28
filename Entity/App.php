@@ -2,9 +2,13 @@
 
 namespace Creavo\MultiAppBundle\Entity;
 
+use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Classes\AppIcon;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * App
@@ -112,6 +116,36 @@ class App
         return $this->getName();
     }
 
+    public function getAppFieldsFromApp() {
+
+        $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
+        $fields=json_decode($this->getFields(),true);
+
+        if($fields===null) {
+            return [];
+        }
+
+        $data=[];
+        foreach($fields AS $field) {
+            $data[]=$serializer->deserialize(json_encode($field),AppField::class,'json');
+        }
+
+        return $data;
+    }
+
+    public function setAppFieldsForApp(array $fields) {
+
+        $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
+
+        $data=[];
+        foreach($fields AS $field) {
+            $data[]=json_decode($serializer->serialize($field,'json'));
+        }
+
+        $this->setFields(json_encode($data,true));
+        return $this;
+    }
+
     public function getId(){
         return $this->id;
     }
@@ -183,8 +217,16 @@ class App
         return $this->fields;
     }
 
-    public function getIcon(){
+    public function getIcon() {
         return $this->icon;
+    }
+
+    public function getIconClass(){
+        $icons=AppIcon::getChoicesAsObjects();
+        if(isset($icons[$this->icon])) {
+            return $icons[$this->icon];
+        }
+        return null;
     }
 
     public function setIcon($icon){

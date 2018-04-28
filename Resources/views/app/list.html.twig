@@ -17,7 +17,7 @@
                     <div class="panel panel-default">
                         <div class="panel-body text-center" style="padding-top:25px;">
                             <p>
-                                <i class="{{ appEntity.icon|default('glyphicon glyphicon-briefcase') }}" style="font-size:40px;"></i>
+                                <i class="{{ appEntity.iconClass|default('glyphicon glyphicon-briefcase') }}" style="font-size:40px;"></i>
                             </p>
                             <p>
                                 <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
