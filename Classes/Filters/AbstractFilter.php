@@ -10,10 +10,12 @@ class AbstractFilter {
         ContainsFilter::class,
         StartsWithFilter::class,
         EndsWithFilter::class,
-        GreaterThanFilter::class,
-        GreaterThanEqualFilter::class,
-        LessThanFilter::class,
-        LessThanEqualFilter::class,
+        //GreaterThanFilter::class,
+        //GreaterThanEqualFilter::class,
+        //LessThanFilter::class,
+        //LessThanEqualFilter::class,
+        NumberRangeFilter::class,
+        DateTimeRangeFilter::class,
     ];
 
     /** @var AppField */
@@ -28,13 +30,16 @@ class AbstractFilter {
     /** @var mixed */
     protected $value2;
 
-    public function __construct(AppField $appField, $value1=null) {
+    public function __construct(AppField $appField, $value1=null, $value2=null) {
         $this->setAppField($appField);
         $this->setFieldSlug($appField->getSlug());
         $this->setValue1($appField->getData());
 
         if($value1) {
             $this->setValue1($value1);
+        }
+        if($value2) {
+            $this->setValue2($value2);
         }
     }
 
@@ -43,6 +48,28 @@ class AbstractFilter {
             return $fieldSlug.'_'.$this->getName().'_'.mt_rand(1000,9999).'_'.$key;
         }
         return $fieldSlug.'_'.$this->getName().'_'.mt_rand(1000,9999);
+    }
+
+    public function getValue1FormType() {
+        return null;
+    }
+
+    public function getValue2FormType() {
+        return null;
+    }
+
+    public function getValue1FormOptions() {
+        return [
+            'label'=>'Wert 1',
+            'required'=>true,
+        ];
+    }
+
+    public function getValue2FormOptions() {
+        return [
+            'label'=>'Wert 2',
+            'required'=>true,
+        ];
     }
 
     public function getName() {

@@ -10,6 +10,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
@@ -140,15 +141,36 @@ class ItemType extends AbstractType {
             $constraints[]=new NotNull(['message'=>'Dieses Feld muss gefüllt werden.']);
         }
 
-        $this->builder->add($appField->getSlug(),DateTimeType::class,[
-            'required'=>$required,
-            'label'=>$label,
-            'constraints'=>$constraints,
-            'date_format'=>'dd.MM.yyyy',
-            'attr'=>[
-                'help'=>$appField->getHelpText(),
-            ],
-        ]);
+        $years=[];
+        foreach(range(1900,2100) AS $year) {
+            $years[$year]=$year;
+        }
+
+        if($appField->isWithTime()) {
+            $this->builder->add($appField->getSlug(),DateTimeType::class,[
+                'required'=>$required,
+                'label'=>$label,
+                'constraints'=>$constraints,
+                'date_format'=>'dd.MM.yyyy',
+                'attr'=>[
+                    'help'=>$appField->getHelpText(),
+                ],
+                'years'=>$years,
+            ]);
+        }else{
+            $this->builder->add($appField->getSlug(),DateType::class,[
+                'required'=>$required,
+                'label'=>$label,
+                'constraints'=>$constraints,
+                'format'=>'dd.MM.yyyy',
+                'attr'=>[
+                    'help'=>$appField->getHelpText(),
+                ],
+                'years'=>$years,
+            ]);
+        }
+
+
     }
 
     protected function buildBooleanForm(AppField $appField) {

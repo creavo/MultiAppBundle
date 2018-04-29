@@ -36,6 +36,7 @@ class AppField {
     protected $showListing=true;
     protected $hideWhenEmpty=false;
     protected $textArea=false;
+    protected $withTime=false;
     protected $scale=2;
     protected $currency='EUR';
     protected $choices=[];
@@ -49,6 +50,20 @@ class AppField {
         if($slug) {
             $this->setSlug($slug);
         }
+    }
+
+    public function hasSecondFilterValue() {
+
+        if(in_array($this->getType(),[
+            self::TYPE_NUMBER,
+            self::TYPE_MONEY,
+            self::TYPE_PROGRESS,
+            self::TYPE_DATETIME,
+        ],false)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function getAlign() {
@@ -196,6 +211,13 @@ class AppField {
         return $this;
     }
 
+    public function isWithTime(){
+        return $this->withTime;
+    }
 
+    public function setWithTime($withTime){
+        $this->withTime = $withTime;
+        return $this;
+    }
 
 }

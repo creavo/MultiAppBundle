@@ -2,6 +2,7 @@
 
 namespace Creavo\MultiAppBundle\Controller;
 
+use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Workspace;
 use Creavo\MultiAppBundle\Form\Type\AppBasicType;
@@ -120,36 +121,55 @@ class AppController extends Controller {
 
         foreach($possibleFilters AS $slug=>$possibleFilter) {
 
-            $builder=$this->get('form.factory')->createNamedBuilder($slug);
-            $builder
-                ->add('choice_filter',ChoiceType::class,[
+            /**
+             * @var int $key
+             * @var FilterInterface $filterEntity
+             */
+            foreach((array)$possibleFilter['filters'] AS $key=>$filterEntity) {
+
+                $builder=$this->get('form.factory')->createNamedBuilder($slug.'_'.$key);
+
+                /*
+                $builder->add('choice_filter',ChoiceType::class,[
                     'label'=>'Filter',
                     'choice_label'=>function(FilterInterface $filter) {
                         return $filter->toText();
                     },
-                    'choices'=>$possibleFilter['filters'],
-                    'required'=>true,
-                ])
-                ->add('value1',TextType::class,[
-                    'label'=>'Wert',
+                    'choices'=>[$filterEntity],
                     'required'=>true,
                 ]);
+                */
 
-            $form=$builder->getForm();
-            $form->handleRequest($request);
-            if($form->isSubmitted() AND $form->isValid()) {
-                /** @var FilterInterface $filter */
-                $filter=$form['choice_filter']->getData();
-                $filter->setValue1($form['value1']->getData());
+                if($filterEntity->getValue1FormType()) {
+                    $builder->add('value1',$filterEntity->getValue1FormType(),$filterEntity->getValue1FormOptions());
+                }
 
-                $filterHelper->addFilter($app,$request,$filter);
-                return $this->redirectToRoute('crv_ma_app_modal_filters',[
-                    'workspaceSlug'=>$workspace->getSlug(),
-                    'appSlug'=>$app->getSlug(),
-                ]);
+                if($filterEntity->getValue2FormType()) {
+                    $builder->add('value2',$filterEntity->getValue2FormType(),$filterEntity->getValue2FormOptions());
+                }
+
+                $form=$builder->getForm();
+                $form->handleRequest($request);
+
+                if($form->isSubmitted() AND $form->isValid()) {
+                    $filterEntity->setValue1($form['value1']->getData());
+
+                    if(isset($form['value2'])) {
+                        $filterEntity->setValue2($form['value2']->getData());
+                    }
+
+                    $filterHelper->addFilter($app,$request,$filterEntity);
+                    return $this->redirectToRoute('crv_ma_app_modal_filters',[
+                        'workspaceSlug'=>$workspace->getSlug(),
+                        'appSlug'=>$app->getSlug(),
+                    ]);
+                }
+
+                $formViews[$slug][$key]=[
+                    'form'=>$form->createView(),
+                    'filter'=>$filterEntity,
+                ];
             }
-
-            $formViews[$slug]=$form->createView();
         }
 
         return $this->render('@CreavoMultiApp/app/modal_filters.html.twig',[

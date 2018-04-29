@@ -5,6 +5,7 @@ namespace Creavo\MultiAppBundle\Classes\Filters;
 use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Interfaces\FilterInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class EndsWithFilter extends AbstractFilter implements FilterInterface {
 
@@ -19,6 +20,11 @@ class EndsWithFilter extends AbstractFilter implements FilterInterface {
             AppField::TYPE_EMAIL,
         ];
     }
+
+    public function getValue1FormType() {
+        return TextType::class;
+    }
+
 
     public function filter(QueryBuilder $qb) {
         $filterName=$this->getParameterName($this->getFieldSlug());

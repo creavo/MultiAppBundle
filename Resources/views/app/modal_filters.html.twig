@@ -53,17 +53,34 @@
 
                     {% for appField in appEntity.appFieldsFromApp %}
                         <div class="tab-pane" id="tab_{{ appField.slug }}">
-                            <h4>{{ appField.name }}</h4>
+                            {% if formViews[appField.slug] is defined and formViews[appField.slug] %}
+                                {% for row in formViews[appField.slug] %}
+                                    {% set formView=row.form %}
+                                    {% set filterEntity=row.filter %}
 
-                            {% if formViews[appField.slug] %}
-                                {% set form=formViews[appField.slug] %}
-                                {% form_theme form '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
-                                {{ form_start(form) }}
-                                {{ form_widget(form) }}
-                                <button class="btn btn-primary">
-                                    <i class="glyphicon glyphicon-floppy-disk"></i> Filter ergänzen
-                                </button>
-                                {{ form_end(form) }}
+                                    <h4>{{ filterEntity.toText }}</h4>
+                                    {% form_theme formView '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
+                                    {{ form_start(formView) }}
+
+                                    {% if formView.value1 is defined and formView.value2 is defined %}
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                {{ form_row(formView.value1) }}
+                                            </div>
+                                            <div class="col-xs-6">
+                                                {{ form_row(formView.value2) }}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {{ form_widget(formView) }}
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="glyphicon glyphicon-floppy-disk"></i> Filter ergänzen
+                                    </button>
+                                    {{ form_end(formView) }}
+
+                                    <hr />
+                                {% endfor %}
                             {% endif %}
 
                             {% if possibleFilters[appField.slug] %}

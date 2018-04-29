@@ -78,7 +78,10 @@ class FormatHelper {
                 break;
 
             case AppField::TYPE_DATETIME:
-                return $appField->getData()->format('d.m.Y H:i:s');
+                if($appField->isWithTime()) {
+                    return $appField->getData()->format('d.m.Y H:i');
+                }
+                return $appField->getData()->format('d.m.Y');
                 break;
 
             case AppField::TYPE_BOOLEAN:

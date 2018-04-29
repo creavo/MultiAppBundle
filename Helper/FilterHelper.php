@@ -50,7 +50,6 @@ class FilterHelper {
         }
 
         foreach($sortedFilters AS $slug=>$sortedFilter) {
-            dump($sortedFilter);
 
             $orX=$queryBuilder->expr()->orX();
 
@@ -77,11 +76,12 @@ class FilterHelper {
             foreach(AbstractFilter::FILTERS AS $filterClass) {
                 $supports=call_user_func([$filterClass,'getTypes']);
                 if(in_array($appField->getType(),$supports,false)) {
-                    $filters[]=new $filterClass($appField,'[Wert]');
+                    $filters[]=new $filterClass($appField,'[Wert 1]','[Wert 2]');
                 }
             }
 
             $data[$appField->getSlug()]=[
+                'appField'=>$appField,
                 'filters'=>$filters,
             ];
 
