@@ -12,7 +12,7 @@ class StartsWithFilter extends AbstractFilter implements FilterInterface {
         return 'starts_with';
     }
 
-    public function getTypes() {
+    public static function getTypes() {
         return [
             AppField::TYPE_STRING,
             AppField::TYPE_URL,
@@ -21,15 +21,13 @@ class StartsWithFilter extends AbstractFilter implements FilterInterface {
     }
 
     public function filter(QueryBuilder $qb) {
-
         $filterName=$this->getParameterName($this->getFieldSlug());
-        $qb
-            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(ir.data,'$.".$this->getFieldSlug()."')) LIKE :".$filterName)
-            ->setParameter($filterName,$this->getValue().'%');
+        $qb->setParameter($filterName,$this->getValue1().'%');
+        return $qb->expr()->like("JSON_UNQUOTE(JSON_EXTRACT(ir.data,'$.".$this->getFieldSlug()."'))",':'.$filterName);
     }
 
     public function toText() {
-        return $this->getAppField()->getName().' beginnt mit "'.$this->getValue().'"';
+        return $this->getAppField()->getName().' beginnt mit "'.$this->getValue1().'"';
     }
 
 }

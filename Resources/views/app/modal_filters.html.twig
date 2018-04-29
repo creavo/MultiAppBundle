@@ -14,6 +14,13 @@
                             {% endif %}
                         </a>
                     </li>
+                    {% for appField in appEntity.appFieldsFromApp %}
+                        <li>
+                            <a href="#tab_{{ appField.slug }}" data-toggle="tooltip">
+                                {{ appField.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
                 </ul>
 
             </div>
@@ -22,8 +29,12 @@
 
                 <div class="tab-content">
                     <div class="tab-pane active" id="active_filters">
+                        {% if filterObjects|length>0 %}
+                            <a href="{{ path('crv_ma_app_modal_filters',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'action': 'removeAll'}) }}" class="btn btn-default pull-right btn-xs">
+                                <i class="glyphicon glyphicon-remove"></i> alle Filter zurücksetzen
+                            </a>
+                        {% endif %}
                         <h4>Aktive Filter</h4>
-
                         <div class="tags">
                             {% for key, filterObject in filterObjects %}
                                 <span>
@@ -32,11 +43,36 @@
                                         <i class="glyphicon glyphicon-remove"></i>
                                     </a>
                                 </span>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    Keine Filter eingestellt.
+                                </div>
                             {% endfor %}
                         </div>
-
-                        {{ dump() }}
                     </div>
+
+                    {% for appField in appEntity.appFieldsFromApp %}
+                        <div class="tab-pane" id="tab_{{ appField.slug }}">
+                            <h4>{{ appField.name }}</h4>
+
+                            {% if formViews[appField.slug] %}
+                                {% set form=formViews[appField.slug] %}
+                                {% form_theme form '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
+                                {{ form_start(form) }}
+                                {{ form_widget(form) }}
+                                <button class="btn btn-primary">
+                                    <i class="glyphicon glyphicon-floppy-disk"></i> Filter ergänzen
+                                </button>
+                                {{ form_end(form) }}
+                            {% endif %}
+
+                            {% if possibleFilters[appField.slug] %}
+                                {% for filter in possibleFilters[appField.slug].filters %}
+
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
                 </div>
 
             </div>
@@ -50,7 +86,11 @@
         $(document).ready(function() {
             var height=$(window.parent.document).find('#crv_ma_modal iframe').height()-20;
             $('.col-xs-4, .col-xs-8').css({'height': height+'px','overflow': 'auto'});
-            console.log(height);
+
+            $('.tabs-left a').on('click',function(e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
         });
     </script>
 

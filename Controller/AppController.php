@@ -6,9 +6,12 @@ use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Workspace;
 use Creavo\MultiAppBundle\Form\Type\AppBasicType;
 use Creavo\MultiAppBundle\Helper\FilterHelper;
+use Creavo\MultiAppBundle\Interfaces\FilterInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -107,14 +110,54 @@ class AppController extends Controller {
 
         if($request->query->getInt('removeFilter',-1)>=0) {
             $removeFilter=$request->query->getInt('removeFilter',-1);
-            dump($removeFilter);
             $filterHelper->removeFilter($app,$request,$removeFilter);
+        }elseif($request->query->get('action')==='removeAll') {
+            $filterHelper->removeAllFilters($app,$request);
+        }
+
+        $formViews=[];
+        $possibleFilters=$filterHelper->getPossibleFilters($app);
+
+        foreach($possibleFilters AS $slug=>$possibleFilter) {
+
+            $builder=$this->get('form.factory')->createNamedBuilder($slug);
+            $builder
+                ->add('choice_filter',ChoiceType::class,[
+                    'label'=>'Filter',
+                    'choice_label'=>function(FilterInterface $filter) {
+                        return $filter->toText();
+                    },
+                    'choices'=>$possibleFilter['filters'],
+                    'required'=>true,
+                ])
+                ->add('value1',TextType::class,[
+                    'label'=>'Wert',
+                    'required'=>true,
+                ]);
+
+            $form=$builder->getForm();
+            $form->handleRequest($request);
+            if($form->isSubmitted() AND $form->isValid()) {
+                /** @var FilterInterface $filter */
+                $filter=$form['choice_filter']->getData();
+                $filter->setValue1($form['value1']->getData());
+
+                $filterHelper->addFilter($app,$request,$filter);
+                return $this->redirectToRoute('crv_ma_app_modal_filters',[
+                    'workspaceSlug'=>$workspace->getSlug(),
+                    'appSlug'=>$app->getSlug(),
+                ]);
+            }
+
+            $formViews[$slug]=$form->createView();
         }
 
         return $this->render('@CreavoMultiApp/app/modal_filters.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
             'filterObjects'=>$filterHelper->getFilterObjects($app,$request),
+            'possibleFilters'=>$possibleFilters,
+            'formViews'=>$formViews,
         ]);
     }
 

@@ -6,6 +6,16 @@ use Creavo\MultiAppBundle\Classes\AppField;
 
 class AbstractFilter {
 
+    const FILTERS=[
+        ContainsFilter::class,
+        StartsWithFilter::class,
+        EndsWithFilter::class,
+        GreaterThanFilter::class,
+        GreaterThanEqualFilter::class,
+        LessThanFilter::class,
+        LessThanEqualFilter::class,
+    ];
+
     /** @var AppField */
     protected $appField;
 
@@ -13,15 +23,18 @@ class AbstractFilter {
     protected $fieldSlug;
 
     /** @var mixed */
-    protected $value;
+    protected $value1;
 
-    public function __construct(AppField $appField, $value=null) {
+    /** @var mixed */
+    protected $value2;
+
+    public function __construct(AppField $appField, $value1=null) {
         $this->setAppField($appField);
         $this->setFieldSlug($appField->getSlug());
-        $this->setValue($appField->getData());
+        $this->setValue1($appField->getData());
 
-        if($value) {
-            $this->setValue($value);
+        if($value1) {
+            $this->setValue1($value1);
         }
     }
 
@@ -36,12 +49,21 @@ class AbstractFilter {
         throw new \LogicException('name must be overridden');
     }
 
-    public function getValue(){
-        return $this->value;
+    public function getValue1(){
+        return $this->value1;
     }
 
-    public function setValue($value){
-        $this->value = $value;
+    public function setValue1($value1){
+        $this->value1 = $value1;
+        return $this;
+    }
+
+    public function getValue2(){
+        return $this->value2;
+    }
+
+    public function setValue2($value2){
+        $this->value2 = $value2;
         return $this;
     }
 

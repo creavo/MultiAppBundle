@@ -3,6 +3,7 @@
 namespace Creavo\MultiAppBundle\Helper;
 
 use Creavo\MultiAppBundle\Classes\AppField;
+use Creavo\MultiAppBundle\Classes\Filters\AbstractFilter;
 use Creavo\MultiAppBundle\Classes\Filters\ContainsFilter;
 use Creavo\MultiAppBundle\Classes\Filters\StartsWithFilter;
 use Creavo\MultiAppBundle\Entity\App;
@@ -41,11 +42,52 @@ class FilterHelper {
 
     public function modifyQueryBuilder(App $app, Request $request, QueryBuilder $queryBuilder) {
 
+        $sortedFilters=[];
+
         /** @var FilterInterface $filter */
         foreach($this->getFilters($app,$request) AS $filter) {
-            $filter->filter($queryBuilder);
+            $sortedFilters[$filter->getFieldSlug()][]=$filter;
         }
 
+        foreach($sortedFilters AS $slug=>$sortedFilter) {
+            dump($sortedFilter);
+
+            $orX=$queryBuilder->expr()->orX();
+
+            /** @var FilterInterface $filter */
+            foreach((array)$sortedFilter AS $filter) {
+                $orX->add($filter->filter($queryBuilder));
+            }
+
+            $queryBuilder->andWhere(
+                $queryBuilder->expr()->orX($orX)
+            );
+        }
+
+    }
+
+    public function getPossibleFilters(App $app) {
+        $data=[];
+
+        /** @var AppField $appField */
+        foreach((array)$app->getAppFieldsFromApp() as $appField) {
+
+            $filters=[];
+
+            foreach(AbstractFilter::FILTERS AS $filterClass) {
+                $supports=call_user_func([$filterClass,'getTypes']);
+                if(in_array($appField->getType(),$supports,false)) {
+                    $filters[]=new $filterClass($appField,'[Wert]');
+                }
+            }
+
+            $data[$appField->getSlug()]=[
+                'filters'=>$filters,
+            ];
+
+        }
+
+        return $data;
     }
 
     protected function getFilters(App $app, Request $request) {
@@ -79,6 +121,24 @@ class FilterHelper {
         if(isset($sessionData['filters'][$filterKey])) {
             unset($sessionData['filters'][$filterKey]);
         }
+        $this->setSessionData($app,$request,$sessionData);
+    }
+
+    public function removeAllFilters(App $app, Request $request) {
+        $sessionData=$this->getSessionData($app,$request);
+        $sessionData['filters']=[];
+        $this->setSessionData($app,$request,$sessionData);
+    }
+
+    public function addFilter(App $app, Request $request, FilterInterface $filter) {
+
+        $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
+
+        $sessionData=$this->getSessionData($app,$request);
+        $sessionData['filters'][]=[
+            'data'=>$serializer->serialize($filter,'json'),
+            'class'=>get_class($filter),
+        ];
         $this->setSessionData($app,$request,$sessionData);
     }
 

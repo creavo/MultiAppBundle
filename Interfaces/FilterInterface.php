@@ -12,7 +12,7 @@ interface FilterInterface {
 
     public function getName();
 
-    public function getTypes();
+    public static function getTypes();
 
     public function filter(QueryBuilder $qb);
 
@@ -20,7 +20,7 @@ interface FilterInterface {
 
     public function setFieldSlug($fieldSlug);
     public function getFieldSlug();
-    public function setValue($value);
-    public function getValue();
+    public function setValue1($value);
+    public function getValue1();
 
 }

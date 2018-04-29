@@ -12,7 +12,7 @@ class GreaterThanFilter extends AbstractFilter implements FilterInterface {
         return 'greater_than';
     }
 
-    public function getTypes() {
+    public static function getTypes() {
         return [
             AppField::TYPE_NUMBER,
             AppField::TYPE_MONEY,
@@ -21,15 +21,13 @@ class GreaterThanFilter extends AbstractFilter implements FilterInterface {
     }
 
     public function filter(QueryBuilder $qb) {
-
         $filterName=$this->getParameterName($this->getFieldSlug());
-        $qb
-            ->andWhere("JSON_UNQUOTE(JSON_EXTRACT(ir.data,'$.".$this->getFieldSlug()."')) > :".$filterName)
-            ->setParameter($filterName,'%'.$this->getValue().'%');
+        $qb->setParameter($filterName,(int)$this->getValue1());
+        return $qb->expr()->gt("JSON_UNQUOTE(JSON_EXTRACT(ir.data,'$.".$this->getFieldSlug()."'))",':'.$filterName);
     }
 
     public function toText() {
-        return $this->getAppField()->getName().' größer als "'.$this->getValue().'"';
+        return $this->getAppField()->getName().' größer als "'.$this->getValue1().'"';
     }
 
 }
