@@ -43,6 +43,11 @@
             <i class="glyphicon glyphicon-list"></i> zur Liste
         </a>
     </li>
+    <li>
+        <a href="{{ path('crv_ma_item_create',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">
+            <i class="glyphicon glyphicon-plus"></i> {{ appEntity.itemSingularName }}
+        </a>
+    </li>
 </ul>
 
 <p><br /></p>

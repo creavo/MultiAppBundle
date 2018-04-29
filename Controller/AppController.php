@@ -47,6 +47,19 @@ class AppController extends Controller {
     }
 
     /**
+     * @Route("/{workspaceSlug}/create-app", name="crv_ma_app_create")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function createAppAction(Workspace $workspace, Request $request) {
+        $app=new App();
+        $app->setWorkspace($workspace);
+        return $this->editAppBasicsAction($workspace,$app,$request);
+    }
+
+    /**
      * @Route("/{workspaceSlug}/{appSlug}/edit-basics", name="crv_ma_app_edit_basics")
      * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
      * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
@@ -62,6 +75,11 @@ class AppController extends Controller {
 
         if($form->isSubmitted() AND $form->isValid()) {
 
+            if(!$app->getSlug()) {
+                $app->setSlug($this->get('creavo_multi_app.helper.slug_helper')->createSlugForApp($app));
+            }
+
+            $this->getDoctrine()->getManager()->persist($app);
             $this->getDoctrine()->getManager()->flush();
             $this->addFlash('success','Die App wurde gespeichert.');
 
@@ -128,18 +146,6 @@ class AppController extends Controller {
             foreach((array)$possibleFilter['filters'] AS $key=>$filterEntity) {
 
                 $builder=$this->get('form.factory')->createNamedBuilder($slug.'_'.$key);
-
-                /*
-                $builder->add('choice_filter',ChoiceType::class,[
-                    'label'=>'Filter',
-                    'choice_label'=>function(FilterInterface $filter) {
-                        return $filter->toText();
-                    },
-                    'choices'=>[$filterEntity],
-                    'required'=>true,
-                ]);
-                */
-
                 if($filterEntity->getValue1FormType()) {
                     $builder->add('value1',$filterEntity->getValue1FormType(),$filterEntity->getValue1FormOptions());
                 }

@@ -26,4 +26,19 @@ interface UserInterface {
      */
     public function getAvatar();
 
+    /**
+     * persists user-individual data like chosen filters in the user-entity
+     *
+     * @param array $data
+     * @return mixed
+     */
+    public function setCrvMultiAppData(array $data);
+
+    /**
+     * gets user-individual data
+     *
+     * @return array
+     */
+    public function getCrvMultiAppData();
+
 }

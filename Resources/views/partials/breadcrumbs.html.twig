@@ -10,7 +10,8 @@
 
     {% if
         workspace is defined and
-        appEntity is defined
+        appEntity is defined and
+        appEntity.id
     %}
         <li>
             <a href="{{ path('crv_ma_item_list',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug}) }}">

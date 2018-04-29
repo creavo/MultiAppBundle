@@ -19,8 +19,13 @@ class SlugHelper {
 
     }
 
-    public function createSlugForApp(Workspace $workspace, $name) {
+    public function createSlugForApp(App $app) {
 
+        $slug=self::createSlugFromString($app->getName());
+
+        // TODO: check if slug is already used
+
+        return $slug;
     }
 
     public function createSlugForAppField(App $app, $fieldName, array $generatedSlugs=[]) {

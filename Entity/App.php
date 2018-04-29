@@ -99,7 +99,7 @@ class App
     private $updatedAt;
 
 
-    public function __construct($name,$slug){
+    public function __construct($name=null,$slug=null){
 
         $this->setName($name);
         $this->setSlug($slug);

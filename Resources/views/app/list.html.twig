@@ -10,6 +10,12 @@
 
     {% include '@CreavoMultiApp/partials/breadcrumbs.html.twig' %}
 
+    <p class="text-right">
+        <a href="{{ path('crv_ma_app_create',{'workspaceSlug': workspace.slug}) }}" class="btn btn-primary">
+            <i class="glyphicon glyphicon-plus"></i> App
+        </a>
+    </p>
+
     {% if pagination|length>0 %}
         <div class="row">
             {% for appEntity in pagination %}

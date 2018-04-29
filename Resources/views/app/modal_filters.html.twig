@@ -54,33 +54,50 @@
                     {% for appField in appEntity.appFieldsFromApp %}
                         <div class="tab-pane" id="tab_{{ appField.slug }}">
                             {% if formViews[appField.slug] is defined and formViews[appField.slug] %}
-                                {% for row in formViews[appField.slug] %}
-                                    {% set formView=row.form %}
-                                    {% set filterEntity=row.filter %}
 
-                                    <h4>{{ filterEntity.toText }}</h4>
-                                    {% form_theme formView '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
-                                    {{ form_start(formView) }}
+                                <div class="panel-group" id="accordion_{{ appField.slug }}">
+                                    {% for key, row in formViews[appField.slug] %}
+                                        {% set formView=row.form %}
+                                        {% set filterEntity=row.filter %}
 
-                                    {% if formView.value1 is defined and formView.value2 is defined %}
-                                        <div class="row">
-                                            <div class="col-xs-6">
-                                                {{ form_row(formView.value1) }}
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a href="#collapse_{{ appField.slug }}_{{ key }}" data-parent="#accordion_{{ appField.slug }}" data-toggle="collapse">
+                                                        {{ filterEntity.toText }}
+                                                    </a>
+                                                </h4>
                                             </div>
-                                            <div class="col-xs-6">
-                                                {{ form_row(formView.value2) }}
+                                            <div id="collapse_{{ appField.slug }}_{{ key }}" class="panel-collapse collapse {% if loop.index==1 %}in{% endif %}">
+                                                <div class="panel-body">
+
+                                                    {% form_theme formView '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
+                                                    {{ form_start(formView) }}
+
+                                                    {% if formView.value1 is defined and formView.value2 is defined %}
+                                                        <div class="row">
+                                                            <div class="col-xs-6">
+                                                                {{ form_row(formView.value1) }}
+                                                            </div>
+                                                            <div class="col-xs-6">
+                                                                {{ form_row(formView.value2) }}
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {{ form_widget(formView) }}
+                                                    <button class="btn btn-primary btn-sm">
+                                                        <i class="glyphicon glyphicon-floppy-disk"></i> Filter ergänzen
+                                                    </button>
+                                                    {{ form_end(formView) }}
+
+                                                </div>
                                             </div>
                                         </div>
-                                    {% endif %}
+                                    {% endfor %}
+                                </div>
 
-                                    {{ form_widget(formView) }}
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="glyphicon glyphicon-floppy-disk"></i> Filter ergänzen
-                                    </button>
-                                    {{ form_end(formView) }}
 
-                                    <hr />
-                                {% endfor %}
                             {% endif %}
 
                             {% if possibleFilters[appField.slug] %}

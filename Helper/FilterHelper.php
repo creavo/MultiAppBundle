@@ -84,7 +84,6 @@ class FilterHelper {
                 'appField'=>$appField,
                 'filters'=>$filters,
             ];
-
         }
 
         return $data;
@@ -95,19 +94,6 @@ class FilterHelper {
 
         $sessionData=$this->getSessionData($app,$request);
         $serializer=new Serializer([new ObjectNormalizer()],[new JsonEncoder()]);
-
-        $filter=new ContainsFilter($app->getAppFieldsFromApp()[0],'e');
-
-        $save=[
-            'filters'=>[
-                [
-                    'data'=>$serializer->serialize($filter,'json'),
-                    'class'=>ContainsFilter::class,
-                ]
-            ]
-        ];
-        //dump($save);
-        //$this->setSessionData($app,$request,$save);
 
         foreach((array)$sessionData['filters'] AS $key=>$filter) {
             $data[$key]=$serializer->deserialize($filter['data'],$filter['class'],'json');
