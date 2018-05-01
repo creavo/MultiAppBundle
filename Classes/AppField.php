@@ -34,7 +34,6 @@ class AppField {
     protected $slug;
     protected $required=false;
     protected $showListing=true;
-    protected $hideWhenEmpty=false;
     protected $textArea=false;
     protected $withTime=false;
     protected $scale=2;
@@ -78,6 +77,13 @@ class AppField {
         return 'left';
     }
 
+    public function getTypeName() {
+        if($text=\array_search($this->getType(),self::TYPES,false)) {
+            return $text;
+        }
+        return null;
+    }
+
     public function getName(){
         return $this->name;
     }
@@ -119,19 +125,6 @@ class AppField {
 
     public function setShowListing($showListing){
         $this->showListing = $showListing;
-        return $this;
-    }
-
-    public function isHideWhenEmpty(){
-        return $this->hideWhenEmpty;
-    }
-
-    public function getHideWhenEmpty(){
-        return $this->hideWhenEmpty;
-    }
-
-    public function setHideWhenEmpty($hideWhenEmpty){
-        $this->hideWhenEmpty = $hideWhenEmpty;
         return $this;
     }
 

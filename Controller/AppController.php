@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Class AppController
@@ -107,9 +108,64 @@ class AppController extends Controller {
      */
     public function editAppFieldsAction(Workspace $workspace, App $app, Request $request) {
 
+        $fields=$this->getSessionData($app,$request);
+
         return $this->render('@CreavoMultiApp/app/edit_fields.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
+            'fields'=>$fields,
+        ]);
+    }
+
+    protected function setSessionData(App $app, Request $request, array $data) {
+        /** @var SessionInterface $session */
+        $session=$request->getSession();
+
+        $crvMaFieldData=$session->get('crv_ma_field_data');
+
+        $crvMaFieldData[$app->getId()]=$data;
+        $session->set('crv_ma_field_data',$crvMaFieldData);
+        return $data;
+    }
+
+    protected function getSessionData(App $app, Request $request) {
+        /** @var SessionInterface $session */
+        $session=$request->getSession();
+
+        $crvMaFieldData=$session->get('crv_ma_field_data');
+
+        if(!isset($crvMaFieldData[$app->getId()])) {
+            $this->setSessionData($app,$request,$app->getAppFieldsFromApp());
+        }
+
+        return $crvMaFieldData[$app->getId()];
+    }
+
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/edit-field-modal", name="crv_ma_app_edit_field_modal")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editAppFieldModalAction(Workspace $workspace, App $app, Request $request) {
+
+        $fieldNumber=$request->query->getInt('field',-1);
+        $fields=$this->getSessionData($app,$request);
+
+        if(!isset($fields[$fieldNumber])) {
+            throw $this->createNotFoundException('field with number '.$fieldNumber.' not found');
+        }
+
+        /** @var AppField $appField */
+        $appField=$fields[$fieldNumber];
+
+        return $this->render('@CreavoMultiApp/app/edit_field_modal.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+            'appField'=>$appField,
         ]);
     }
 

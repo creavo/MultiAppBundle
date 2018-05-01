@@ -12,10 +12,79 @@
 
     {% include '@CreavoMultiApp/app/nav.html.twig' %}
 
+    <div class="row">
+        <div class="col-sm-9">
 
+            {% for key, appField in fields %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <button class="btn btn-default crv_ma_open_modal pull-right btn-xs" data-src="{{ path('crv_ma_app_edit_field_modal',{'workspaceSlug': workspace.slug,'appSlug': appEntity.slug, 'field': key}) }}" data-title="{{ appField.name }} bearbeiten">
+                            <i class="glyphicon glyphicon-edit"></i> bearbeiten
+                        </button>
+                        <h5 class="panel-title">
+                            <em>{{ appField.name }}</em> ({{ appField.typeName }}-Feld)
+                        </h5>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <strong>Pflichtfeld</strong> {{ appField.required|crv_ma_boolean }}
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Zeige in Liste</strong> {{ appField.showListing|crv_ma_boolean }}
+                            </div>
+                            {% if appField.helpText %}
+                                <div class="col-sm-12">
+                                    <strong>Hilfetext</strong> {{ appField.helpText }}
+                                </div>
+                            {% endif %}
+                            {% include '@CreavoMultiApp/app/field_panel/'~appField.type~'.html.twig' ignore missing with {'appField': appField} only %}
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+    </div>
+
+    {{ dump(fields) }}
 
     <button class="btn btn-primary">
         <i class="glyphicon glyphicon-floppy-disk"></i> Speichern
     </button>
 
+{% endblock %}
+
+{% block crv_ma_javascripts %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('body').on('click','.crv_ma_open_modal',function(e) {
+                e.preventDefault();
+
+                var src=$(this).data('src');
+                var height = $(this).data('height') || 450;
+                var width = $(this).data('width') || 650;
+                var title = $(this).data('modal-title') || $(this).data('title') || 'Modal';
+                var footerBtn = $(this).data('footer-btn') || 'close';
+
+                $('#crv_ma_modal .modal-dialog').css({
+                    width: (width+32),
+                    height: (height+94)
+                });
+
+                $('#crv_ma_modal .modal-title').html(title);
+                if(footerBtn==='reload') {
+                    console.log('test');
+                    $('#crv_ma_modal .modal-footer button')
+                        .removeAttr('data-dismiss')
+                        .on('click',function() {
+                            parent.location.href=parent.location.href;
+                        });
+                }
+                $('#crv_ma_modal').modal();
+                $('#crv_ma_modal .modal-body').html('<iframe src="'+src+'" height="'+height+'" width="'+width+'" frameborder="0"></iframe>');
+            });
+        });
+    </script>
 {% endblock %}

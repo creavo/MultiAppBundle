@@ -45,6 +45,15 @@ class MultiAppExtension extends \Twig_Extension
                 }
                 return $default;
             }),
+            new \Twig_SimpleFilter('crv_ma_boolean',function($value) {
+                if($value===true OR $value==='y') {
+                    return 'Ja';
+                }
+                if($value===false OR $value==='n') {
+                    return 'Nein';
+                }
+                return null;
+            }),
         ];
     }
 
