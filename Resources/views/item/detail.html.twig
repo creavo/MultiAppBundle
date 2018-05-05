@@ -21,7 +21,7 @@
         <div class="col-sm-7">
 
             {% for appField in appFields %}
-                {% if not appField.hideWhenEmpty or appField.data is not null %}
+                {% if appField.data is not null %}
                     <div class="row">
                         <div class="col-sm-3 text-right">
                             <strong>{{ appField.name }}</strong>

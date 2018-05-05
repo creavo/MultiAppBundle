@@ -38,7 +38,6 @@ class ItemType extends AbstractType {
 
     public function buildForm(FormBuilderInterface $builder, array $options) {
 
-        $data=$builder->getData();
         $this->appFields=$options['appFields'];
         $this->em=$options['em'];
         $this->builder=$builder;
@@ -87,10 +86,7 @@ class ItemType extends AbstractType {
                     $this->buildRelationType($appField);
                     break;
             }
-
-
         }
-
     }
 
     protected function buildRelationType(AppField $appField) {

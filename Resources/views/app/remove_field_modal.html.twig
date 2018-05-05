@@ -1,0 +1,25 @@
+{% extends '@CreavoMultiApp/base_iframe.html.twig' %}
+{% form_theme form '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
+
+{% block crv_ma_body %}
+
+    {{ form_start(form) }}
+
+    {{ form_widget(form) }}
+
+    <div class="row">
+        <div class="col-xs-6">
+            <button class="btn btn-danger">
+                <i class="glyphicon glyphicon-floppy-disk"></i> Feld löschen
+            </button>
+        </div>
+        <div class="col-xs-6 text-right">
+            <a href="{{ path('crv_ma_app_edit_field_modal',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'field': fieldNumber}) }}" class="btn btn-primary btn-xs">
+                <i class="glyphicon glyphicon-remove"></i> Feld bearbeiten
+            </a>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+{% endblock %}

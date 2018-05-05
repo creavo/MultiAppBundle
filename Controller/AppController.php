@@ -6,15 +6,19 @@ use Creavo\MultiAppBundle\Classes\AppField;
 use Creavo\MultiAppBundle\Entity\App;
 use Creavo\MultiAppBundle\Entity\Workspace;
 use Creavo\MultiAppBundle\Form\Type\AppBasicType;
+use Creavo\MultiAppBundle\Form\Type\AppFieldType;
 use Creavo\MultiAppBundle\Helper\FilterHelper;
 use Creavo\MultiAppBundle\Interfaces\FilterInterface;
+use Doctrine\Common\Persistence\ObjectManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Validator\Constraints\IsTrue;
 
 /**
  * Class AppController
@@ -108,6 +112,35 @@ class AppController extends Controller {
      */
     public function editAppFieldsAction(Workspace $workspace, App $app, Request $request) {
 
+        if($action=$request->query->get('action')) {
+
+            /** @var ObjectManager $em */
+            $em=$this->getDoctrine()->getManager();
+
+            switch($action) {
+                case 'clear':
+                    $request->getSession()->remove('crv_ma_field_data');
+                    $this->addFlash('success','Die Felder wurden zurückgesetzt.');
+                    break;
+
+                case 'save':
+                    $fields=$this->getSessionData($app,$request);
+                    if(count($fields)>0) {
+                        $app->setAppFieldsForApp($fields);
+                        $request->getSession()->remove('crv_ma_field_data');
+                        $this->addFlash('success','Die Änderungen wurden gespeichert.');
+                        $em->flush();
+                    }else{
+                        $this->addFlash('warning','Speicherung fehlgeschlagen - es muss mindestens ein Feld geben.');
+                    }
+            }
+
+            return $this->redirectToRoute('crv_ma_app_edit_fields',[
+                'workspaceSlug'=>$workspace->getSlug(),
+                'appSlug'=>$app->getSlug(),
+            ]);
+        }
+
         $fields=$this->getSessionData($app,$request);
 
         return $this->render('@CreavoMultiApp/app/edit_fields.html.twig',[
@@ -136,6 +169,7 @@ class AppController extends Controller {
 
         if(!isset($crvMaFieldData[$app->getId()])) {
             $this->setSessionData($app,$request,$app->getAppFieldsFromApp());
+            return $this->getSessionData($app,$request);
         }
 
         return $crvMaFieldData[$app->getId()];
@@ -162,10 +196,73 @@ class AppController extends Controller {
         /** @var AppField $appField */
         $appField=$fields[$fieldNumber];
 
+        $form=$this->createForm(AppFieldType::class,$appField,[
+            'em'=>$this->getDoctrine(),
+        ]);
+        $form->handleRequest($request);
+        if($form->isSubmitted() AND $form->isValid()) {
+
+            $fields[$fieldNumber]=$appField;
+            $this->setSessionData($app,$request,$fields);
+
+            return $this->render('@CreavoMultiApp/partials/modal_close.html.twig');
+        }
+
         return $this->render('@CreavoMultiApp/app/edit_field_modal.html.twig',[
             'workspace'=>$workspace,
             'appEntity'=>$app,
             'appField'=>$appField,
+            'form'=>$form->createView(),
+            'fieldNumber'=>$fieldNumber,
+        ]);
+    }
+
+    /**
+     * @Route("/{workspaceSlug}/{appSlug}/remove-field-modal", name="crv_ma_app_remove_field_modal")
+     * @ParamConverter("workspace", options={"mapping": {"workspaceSlug": "slug"}})
+     * @ParamConverter("app", options={"mapping": {"appSlug": "slug"}})
+     * @param Workspace $workspace
+     * @param App $app
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function removeAppFieldModalAction(Workspace $workspace, App $app, Request $request) {
+
+        $fieldNumber=$request->query->getInt('field',-1);
+        $fields=$this->getSessionData($app,$request);
+
+        if(!isset($fields[$fieldNumber])) {
+            throw $this->createNotFoundException('field with number '.$fieldNumber.' not found');
+        }
+
+        /** @var AppField $appField */
+        $appField=$fields[$fieldNumber];
+
+        $builder=$this->createFormBuilder();
+        $builder->add('check',CheckboxType::class,[
+            'label'=>'Das Feld wirklich endgültig entfernen?',
+            'required'=>true,
+            'constraints'=>[
+                new IsTrue(),
+            ],
+        ]);
+
+        $form=$builder->getForm();
+        $form->handleRequest($request);
+        if($form->isSubmitted() AND $form->isValid()) {
+
+            unset($fields[$fieldNumber]);
+            $this->setSessionData($app,$request,$fields);
+
+            return $this->render('@CreavoMultiApp/partials/modal_close.html.twig');
+        }
+
+        return $this->render('@CreavoMultiApp/app/remove_field_modal.html.twig',[
+            'workspace'=>$workspace,
+            'appEntity'=>$app,
+            'appField'=>$appField,
+            'form'=>$form->createView(),
+            'fieldNumber'=>$fieldNumber,
         ]);
     }
 

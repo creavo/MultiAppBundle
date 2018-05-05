@@ -1,7 +1,38 @@
 {% extends '@CreavoMultiApp/base_iframe.html.twig' %}
+{% form_theme form '@CreavoMultiApp/partials/bootstrap_3_vertical_layout.html.twig' %}
 
 {% block crv_ma_body %}
 
-    {{ dump(appField) }}
+    {{ form_start(form) }}
+
+    {{ form_row(form.name) }}
+
+    <div class="row">
+        <div class="col-xs-6">
+            {{ form_row(form.required) }}
+        </div>
+        <div class="col-xs-6">
+            {{ form_row(form.showListing) }}
+        </div>
+    </div>
+
+    {{ form_row(form.helpText) }}
+
+    {{ form_widget(form) }}
+
+    <div class="row">
+        <div class="col-xs-6">
+            <button class="btn btn-primary">
+                <i class="glyphicon glyphicon-floppy-disk"></i> Speichern
+            </button>
+        </div>
+        <div class="col-xs-6 text-right">
+            <a href="{{ path('crv_ma_app_remove_field_modal',{'workspaceSlug': workspace.slug, 'appSlug': appEntity.slug, 'field': fieldNumber}) }}" class="btn btn-danger btn-xs">
+                <i class="glyphicon glyphicon-remove"></i> Feld entfernen
+            </a>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
 
 {% endblock %}
